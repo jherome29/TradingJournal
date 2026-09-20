@@ -1,51 +1,45 @@
 import type { Trade } from "@/lib/types";
+import { TradeDateField } from "./date-field";
+import { DirectionSelect } from "./direction-select";
+import { SubmitButton } from "./submit-button";
+
+const fieldClass =
+  "w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent";
+const numericFieldClass = `${fieldClass} font-mono`;
+const labelClass = "text-sm text-muted-foreground";
 
 export function TradeForm({
   action,
   trade,
   error,
   submitLabel,
+  pendingLabel,
 }: {
   action: (formData: FormData) => void;
   trade?: Trade;
   error?: string;
   submitLabel: string;
+  pendingLabel: string;
 }) {
   return (
     <form action={action} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
-          <label htmlFor="traded_on" className="text-sm text-neutral-300">
+          <label htmlFor="traded_on" className={labelClass}>
             Date
           </label>
-          <input
-            id="traded_on"
-            name="traded_on"
-            type="date"
-            required
-            defaultValue={trade?.traded_on}
-            className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm outline-none focus:border-neutral-500"
-          />
+          <TradeDateField name="traded_on" defaultValue={trade?.traded_on} />
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="direction" className="text-sm text-neutral-300">
+          <label htmlFor="direction" className={labelClass}>
             Direction
           </label>
-          <select
-            id="direction"
-            name="direction"
-            required
-            defaultValue={trade?.direction ?? "long"}
-            className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm outline-none focus:border-neutral-500"
-          >
-            <option value="long">Long</option>
-            <option value="short">Short</option>
-          </select>
+          <DirectionSelect name="direction" defaultValue={trade?.direction} />
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="entry_price" className="text-sm text-neutral-300">
+          <label htmlFor="entry_price" className={labelClass}>
             Entry price
           </label>
           <input
@@ -55,12 +49,12 @@ export function TradeForm({
             step="0.01"
             required
             defaultValue={trade?.entry_price}
-            className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm outline-none focus:border-neutral-500"
+            className={numericFieldClass}
           />
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="exit_price" className="text-sm text-neutral-300">
+          <label htmlFor="exit_price" className={labelClass}>
             Exit price
           </label>
           <input
@@ -69,12 +63,12 @@ export function TradeForm({
             type="number"
             step="0.01"
             defaultValue={trade?.exit_price ?? undefined}
-            className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm outline-none focus:border-neutral-500"
+            className={numericFieldClass}
           />
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="size" className="text-sm text-neutral-300">
+          <label htmlFor="size" className={labelClass}>
             Size
           </label>
           <input
@@ -84,12 +78,12 @@ export function TradeForm({
             step="0.01"
             required
             defaultValue={trade?.size}
-            className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm outline-none focus:border-neutral-500"
+            className={numericFieldClass}
           />
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="pnl" className="text-sm text-neutral-300">
+          <label htmlFor="pnl" className={labelClass}>
             PnL
           </label>
           <input
@@ -98,13 +92,13 @@ export function TradeForm({
             type="number"
             step="0.01"
             defaultValue={trade?.pnl ?? undefined}
-            className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm outline-none focus:border-neutral-500"
+            className={numericFieldClass}
           />
         </div>
       </div>
 
       <div className="space-y-1">
-        <label htmlFor="notes" className="text-sm text-neutral-300">
+        <label htmlFor="notes" className={labelClass}>
           Notes
         </label>
         <textarea
@@ -113,12 +107,12 @@ export function TradeForm({
           rows={6}
           defaultValue={trade?.notes ?? undefined}
           placeholder="What was the setup, what went right or wrong, anything worth remembering..."
-          className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm outline-none focus:border-neutral-500"
+          className={fieldClass}
         />
       </div>
 
       <div className="space-y-1">
-        <label htmlFor="screenshot" className="text-sm text-neutral-300">
+        <label htmlFor="screenshot" className={labelClass}>
           Screenshot {trade?.screenshot_url && "(uploading replaces the current one)"}
         </label>
         <input
@@ -126,18 +120,13 @@ export function TradeForm({
           name="screenshot"
           type="file"
           accept="image/*"
-          className="w-full text-sm text-neutral-300"
+          className="w-full text-sm text-muted-foreground"
         />
       </div>
 
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && <p className="text-sm text-loss">{error}</p>}
 
-      <button
-        type="submit"
-        className="rounded-md bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-white"
-      >
-        {submitLabel}
-      </button>
+      <SubmitButton label={submitLabel} pendingLabel={pendingLabel} />
     </form>
   );
 }
