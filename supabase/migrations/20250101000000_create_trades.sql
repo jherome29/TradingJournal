@@ -24,6 +24,10 @@ create index if not exists trades_user_id_traded_on_idx
 
 alter table trades enable row level security;
 
+-- RLS controls which rows are visible; this grant controls whether the
+-- authenticated role can reach the table at all (a separate step).
+grant select, insert, update, delete on table trades to authenticated;
+
 -- Ownership-scoped policies: TO authenticated alone only checks the role,
 -- so every policy also filters rows by auth.uid() = user_id.
 create policy "Users can view own trades"
