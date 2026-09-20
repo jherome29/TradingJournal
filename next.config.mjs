@@ -1,9 +1,13 @@
+const isDev = process.env.NODE_ENV === "development";
+
 const CSP = [
   "default-src 'self'",
   // Next.js injects inline hydration/bootstrap scripts in the App Router;
   // a strict nonce-based CSP would need per-request nonces wired through
   // middleware, which is a bigger change than this baseline pass.
-  "script-src 'self' 'unsafe-inline'",
+  // 'unsafe-eval' is dev-only: Next's dev server uses eval() for React
+  // Refresh / HMR. Production builds don't need it.
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: https://*.supabase.co",
   "font-src 'self'",
