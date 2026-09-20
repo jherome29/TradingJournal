@@ -46,7 +46,7 @@ export default async function AnalyticsPage() {
         </p>
       ) : (
         <div className="space-y-10">
-          <div className="flex flex-wrap gap-x-8 gap-y-4 border-y border-border py-4 text-sm">
+          <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3 lg:grid-cols-4">
             <Stat label="Expectancy / trade" tone={expectancy >= 0 ? "profit" : "loss"} delay={0}>
               {expectancy >= 0 ? "+" : "−"}$<CountUp value={Math.abs(expectancy)} delay={0} />
             </Stat>
@@ -75,7 +75,7 @@ export default async function AnalyticsPage() {
           </div>
 
           {drawdown.peakDate && drawdown.troughDate && drawdown.amount > 0 && (
-            <p className="-mt-6 text-xs text-muted-foreground">
+            <p className="-mt-4 text-xs text-muted-foreground">
               Drawdown ran from {drawdown.peakDate} to {drawdown.troughDate}
             </p>
           )}
@@ -227,16 +227,16 @@ function Stat({
 }) {
   return (
     <div
-      className={`animate-cell-in ${
+      className={`animate-cell-in rounded-sm border bg-surface px-3 py-2 ${
         glow === "profit"
-          ? "rounded-sm px-2 py-1 shadow-[0_0_16px_-4px_theme(colors.profit)]"
+          ? "border-profit/40 shadow-[0_0_16px_-4px_theme(colors.profit)]"
           : glow === "loss"
-            ? "rounded-sm px-2 py-1 shadow-[0_0_16px_-4px_theme(colors.loss)]"
-            : ""
+            ? "border-loss/40 shadow-[0_0_16px_-4px_theme(colors.loss)]"
+            : "border-border"
       }`}
       style={{ animationDelay: `${delay}ms` }}
     >
-      <p className="text-muted-foreground">{label}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
       <p
         className={`font-mono text-base ${
           tone === "profit" ? "text-profit" : tone === "loss" ? "text-loss" : "text-foreground"
