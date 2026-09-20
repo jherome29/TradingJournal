@@ -1,9 +1,13 @@
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 import path from "path";
 
 export default defineConfig({
   test: {
     environment: "node",
+    // Integration tests hit the real Supabase project over the network and
+    // have their own runner (test:integration) so a flaky network call
+    // never fails the fast, required "npm test" used by CI.
+    exclude: [...configDefaults.exclude, "**/*.integration.test.ts", "e2e/**"],
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],
