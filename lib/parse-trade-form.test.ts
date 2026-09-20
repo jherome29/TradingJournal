@@ -64,4 +64,106 @@ describe("parseTradeForm", () => {
       )
     ).toThrow("Invalid direction: sideways");
   });
+
+  it("rejects a missing date", () => {
+    expect(() =>
+      parseTradeForm(
+        formData({
+          traded_on: "",
+          direction: "long",
+          entry_price: "2650.5",
+          size: "1",
+        })
+      )
+    ).toThrow("Date is required.");
+  });
+
+  it("rejects a non-numeric entry price", () => {
+    expect(() =>
+      parseTradeForm(
+        formData({
+          traded_on: "2025-01-15",
+          direction: "long",
+          entry_price: "not-a-number",
+          size: "1",
+        })
+      )
+    ).toThrow("Entry price must be a number.");
+  });
+
+  it("rejects a zero or negative entry price", () => {
+    expect(() =>
+      parseTradeForm(
+        formData({
+          traded_on: "2025-01-15",
+          direction: "long",
+          entry_price: "0",
+          size: "1",
+        })
+      )
+    ).toThrow("Entry price must be greater than zero.");
+
+    expect(() =>
+      parseTradeForm(
+        formData({
+          traded_on: "2025-01-15",
+          direction: "long",
+          entry_price: "-5",
+          size: "1",
+        })
+      )
+    ).toThrow("Entry price must be greater than zero.");
+  });
+
+  it("rejects a zero or negative size", () => {
+    expect(() =>
+      parseTradeForm(
+        formData({
+          traded_on: "2025-01-15",
+          direction: "long",
+          entry_price: "2650.5",
+          size: "0",
+        })
+      )
+    ).toThrow("Size must be greater than zero.");
+  });
+
+  it("rejects a non-numeric exit price when present", () => {
+    expect(() =>
+      parseTradeForm(
+        formData({
+          traded_on: "2025-01-15",
+          direction: "long",
+          entry_price: "2650.5",
+          size: "1",
+          exit_price: "abc",
+        })
+      )
+    ).toThrow("Exit price must be a number.");
+  });
+
+  it("allows a negative pnl but rejects a non-numeric one", () => {
+    const result = parseTradeForm(
+      formData({
+        traded_on: "2025-01-15",
+        direction: "long",
+        entry_price: "2650.5",
+        size: "1",
+        pnl: "-42.5",
+      })
+    );
+    expect(result.pnl).toBe(-42.5);
+
+    expect(() =>
+      parseTradeForm(
+        formData({
+          traded_on: "2025-01-15",
+          direction: "long",
+          entry_price: "2650.5",
+          size: "1",
+          pnl: "not-a-number",
+        })
+      )
+    ).toThrow("PnL must be a number.");
+  });
 });
