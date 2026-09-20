@@ -18,7 +18,7 @@ export function TradeDateField({
   }
 
   return (
-    <DateField name={name} defaultValue={parsed} granularity="day">
+    <DateField name={name} defaultValue={parsed} granularity="day" aria-label="Date">
       <DateInput className="flex w-full gap-0.5 rounded-sm border border-border bg-surface px-3 py-2 font-mono text-sm focus-within:border-accent">
         {(segment) => (
           <DateSegment
