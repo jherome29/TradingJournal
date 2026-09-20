@@ -16,9 +16,14 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run dev",
+    // A production build, not `next dev`: dev mode JIT-compiles each route
+    // on first hit (6-12s+ per route on this machine), which made
+    // navigation assertions flaky/hang-looking for reasons that had
+    // nothing to do with app correctness. A prod server serves everything
+    // pre-built, which is also the more realistic thing to test against.
+    command: "npm run build && npm run start",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
-    timeout: 60_000,
+    timeout: 120_000,
   },
 });

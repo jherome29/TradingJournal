@@ -11,7 +11,10 @@ test.describe("trade CRUD", () => {
     await page.getByLabel("Email").fill(EMAIL!);
     await page.getByLabel("Password").fill(PASSWORD!);
     await page.getByRole("button", { name: "Sign in" }).click();
-    await expect(page).toHaveURL(/\/dashboard/);
+    // On a cold CI server, the first hit to /dashboard (pulls in recharts)
+    // can take a while to compile in dev mode -- give this more room than
+    // the other, already-warm navigations in this file.
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 20_000 });
   });
 
   test("log, edit, and delete a trade", async ({ page }) => {
