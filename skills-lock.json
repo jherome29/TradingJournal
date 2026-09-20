@@ -1,0 +1,983 @@
+{
+  "version": 1,
+  "skills": {
+    "access-review": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "compliance/governance/access-review/SKILL.md",
+      "computedHash": "39706e96a99f8443b8e7307ba85311c0e1ba08d6aea9807ad7b722a7490510e2"
+    },
+    "agent-evals": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/ai/agent-evals/SKILL.md",
+      "computedHash": "2e8af47b1b05b020e5ddfa73c1fd8de59d589ae23480c5186e5b1b45da0e37ce"
+    },
+    "agent-observability": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/ai/agent-observability/SKILL.md",
+      "computedHash": "9787138e4a109271a2f4fc448205ce4e02f434cbae74ca944007a6d9e2d98bed"
+    },
+    "ai-agent-security": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/ai/ai-agent-security/SKILL.md",
+      "computedHash": "887b70b618086dc58855fe613360283d0a4da190a321c23fd29ffa429828e820"
+    },
+    "ai-coding-agent-guardrails": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/ai/ai-coding-agent-guardrails/SKILL.md",
+      "computedHash": "6673a83cf2f5d9b2b7d1a4e6914ef83c9c727372b02e06e2c848a4a8dbd67f36"
+    },
+    "ai-inference-service-mesh": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/networking/ai-inference-service-mesh/SKILL.md",
+      "computedHash": "4b70ca47ef4b410dc6df8f48ae143c1b87be884e7812615b8b3e803bde9bc18d"
+    },
+    "ai-pipeline-orchestration": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/ai/ai-pipeline-orchestration/SKILL.md",
+      "computedHash": "fd14d158e9c21410784fd69b90578ab3a52c80bb3224444d9d4d614abb79c690"
+    },
+    "ai-red-teaming": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/ai/ai-red-teaming/SKILL.md",
+      "computedHash": "d827d84de342f56c87bc9f8251f918d18453c13f705c963f86914091f7cb8aef"
+    },
+    "ai-security-hardening": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/ai/ai-security-hardening/SKILL.md",
+      "computedHash": "993746b9e5484d72f0c115cb89df8115b45a0959fbe0111ec1fe6c73b5bc4553"
+    },
+    "ai-sre-incident-response": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/ai/ai-sre-incident-response/SKILL.md",
+      "computedHash": "4922cc1458d28c8990125cf0103a4b1b9ffb9c3e547c832c64627bb309ab49a6"
+    },
+    "alerting-oncall": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/observability/alerting-oncall/SKILL.md",
+      "computedHash": "252045277995e11273515ed3bd7c497e537161950d338d050c8529bbf225b614"
+    },
+    "argocd-gitops": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/orchestration/argocd-gitops/SKILL.md",
+      "computedHash": "133f193adcea968750988116539c2e678b2ff5694870d16529e41eb8125dc4a2"
+    },
+    "arm-templates": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-azure/arm-templates/SKILL.md",
+      "computedHash": "aec009a5e5e3c2833ded623d4b78c8e9f67202107128a7a87f93b4abd0b7f4af"
+    },
+    "asset-inventory": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "compliance/governance/asset-inventory/SKILL.md",
+      "computedHash": "c31863063ee5c2722b0087813af38d330d1a60448cc86d7d7dbbf1d75a005435"
+    },
+    "audit-logging": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "compliance/auditing/audit-logging/SKILL.md",
+      "computedHash": "97a0418ea9c8e46e34a6ae971b9478d652a6f4e537794efbff31c6917a9a963f"
+    },
+    "aws-cloudtrail": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "compliance/auditing/aws-cloudtrail/SKILL.md",
+      "computedHash": "6cde855904d9c3ac0838234ec3474b7ed984a585ed04593636faa9f7a6259be7"
+    },
+    "aws-cost-optimization": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-aws/aws-cost-optimization/SKILL.md",
+      "computedHash": "94c63a2068ad954b3c9d58893d05060ea94590e97923dbd542218c08a9a61e3d"
+    },
+    "aws-ec2": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-aws/aws-ec2/SKILL.md",
+      "computedHash": "428267a2d9246a5f7f8ac61a6b95d3e8c447b058ef99cea43449c062c37d8a2d"
+    },
+    "aws-ecs-fargate": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-aws/aws-ecs-fargate/SKILL.md",
+      "computedHash": "c62c6bcbd555a9f80778e7264e645865ff50431b88ffd82d0cafcc4b669efeae"
+    },
+    "aws-iam": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-aws/aws-iam/SKILL.md",
+      "computedHash": "4702b4af6c4cfc35ac7e84754c15d8055da309f60d9f0ffb1a98621138cb0d8e"
+    },
+    "aws-lambda": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-aws/aws-lambda/SKILL.md",
+      "computedHash": "a3b780991ef18586c5281627f72b264373b0239c65366ba2bc7f36cd48ab07db"
+    },
+    "aws-rds": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-aws/aws-rds/SKILL.md",
+      "computedHash": "2155075b351a7a90bf425f33d5c2f203e7a293c051edd95ce65663da28330503"
+    },
+    "aws-s3": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-aws/aws-s3/SKILL.md",
+      "computedHash": "9aea7b285579ab489d28bbc0cf47be8a51bb5acb8adb252d05e2a6d229acab94"
+    },
+    "aws-secrets-manager": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/secrets/aws-secrets-manager/SKILL.md",
+      "computedHash": "1445d271f83a40409417c0b4a51024d5285ccd69829d2a981623f2494031f1e4"
+    },
+    "aws-vpc": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-aws/aws-vpc/SKILL.md",
+      "computedHash": "a651b9ad25a0002c76fc43d613f048c74cccc97703d4dcfc2fa3f2a885e0010e"
+    },
+    "azure-aks": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-azure/azure-aks/SKILL.md",
+      "computedHash": "2c8915db8382a3d57db04340133ad9749f3a63c4de10da4c086078b4c90231fe"
+    },
+    "azure-devops": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/ci-cd/azure-devops/SKILL.md",
+      "computedHash": "300487f3e9c0c870388655a7c0dcdec61d754797a5d230da516c72c61907204a"
+    },
+    "azure-functions": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-azure/azure-functions/SKILL.md",
+      "computedHash": "24d3e07690ec54ea664c3fa1326f3a5bcfc35d3c4cafffb95e3731bfd12ea007"
+    },
+    "azure-keyvault": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/secrets/azure-keyvault/SKILL.md",
+      "computedHash": "c918ef7aab0025ac73451b75e40fd3dff8434b19b4226358ddf15ab8de7b0cea"
+    },
+    "azure-monitor-audit": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "compliance/auditing/azure-monitor-audit/SKILL.md",
+      "computedHash": "3b799d88ebdf7a72487cd9bf2aca1b53e0618b3352e20af493880f1d209fe906"
+    },
+    "azure-networking": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-azure/azure-networking/SKILL.md",
+      "computedHash": "0969ed767de1dcf91ca3878b2c54fb39e2690c778bc576329f61de119f742058"
+    },
+    "azure-sql": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-azure/azure-sql/SKILL.md",
+      "computedHash": "6ffd0c9c366480c91443f5d089d0f4e60c06162fb8eb9f88f4438749bf452f1f"
+    },
+    "azure-vms": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-azure/azure-vms/SKILL.md",
+      "computedHash": "70c4c75e52965bc8e4f8e32cfb80b048f54a6b45a19abe1e4c40f0ffc6a6f242"
+    },
+    "backup-recovery": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/storage/backup-recovery/SKILL.md",
+      "computedHash": "1941e07b40067107f1f9f75d192d9c8489ab37aeb288e6cc0a929741236dbfbe"
+    },
+    "block-storage": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/storage/block-storage/SKILL.md",
+      "computedHash": "105926e4710fb76c8cdc116491fa8fa5c190b620eaff8d3707bb1620a596fcd5"
+    },
+    "blue-green-deploy": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/release/blue-green-deploy/SKILL.md",
+      "computedHash": "4df9b4fe04711b94a98d2d996b3b870f61963f0fe0258539a1702bde11df5ff0"
+    },
+    "business-continuity": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "compliance/continuity/business-continuity/SKILL.md",
+      "computedHash": "9b31ab3740ed4f52546fed61bab4aee0bb9b496eef0c8d266a9025991fb242cd"
+    },
+    "cdn-setup": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/networking/cdn-setup/SKILL.md",
+      "computedHash": "cf561f20ddaacabf861f309e7626301ddf246854e983c04d90c95b5d1cf9f7c3"
+    },
+    "change-management": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "compliance/governance/change-management/SKILL.md",
+      "computedHash": "83f78387d6d89fdd14a5ed982cd9ffa957da5016fd87413e6af5cae9ed8f211f"
+    },
+    "circleci": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/ci-cd/circleci/SKILL.md",
+      "computedHash": "1eb005accab4a543179d1ff69ca8a8a07e510a4366b3e0f7afe521a4fc2f254d"
+    },
+    "cis-benchmarks": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/hardening/cis-benchmarks/SKILL.md",
+      "computedHash": "d879d014747bcd72acd48526c29d3dc3893c9aa070772208a574dcfd984fee71"
+    },
+    "cloudflare-pages": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloudflare/cloudflare-pages/SKILL.md",
+      "computedHash": "94652c3b9ae6baf874e7fe4197b39678ba46821826a0d7494b0edae22b16f118"
+    },
+    "cloudflare-r2": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloudflare/cloudflare-r2/SKILL.md",
+      "computedHash": "5aaed23cb100b61d18bfd2e7050b710542ed313635c66127c3719d7db684c229"
+    },
+    "cloudflare-workers": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloudflare/cloudflare-workers/SKILL.md",
+      "computedHash": "f3a6a6902fab350dcfb410c45fdf922de2f1e27d51e5d6d2da74b2e46e21e358"
+    },
+    "cloudflare-zero-trust": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloudflare/cloudflare-zero-trust/SKILL.md",
+      "computedHash": "281637a6f9820da8bcba122b4b05f9508c16ef6cc258aee53a55004373dd33c0"
+    },
+    "cloudformation": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-aws/cloudformation/SKILL.md",
+      "computedHash": "44645ff557ce0d2bba0ca0aa8511d8bb54c8b59a02bfadadfed4fa0b4cc971dc"
+    },
+    "container-hardening": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/hardening/container-hardening/SKILL.md",
+      "computedHash": "4ceee922e7c1523b517bbd81d255b30c84360c2c2f9e13fb653a76115a5fe700"
+    },
+    "container-registries": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/containers/container-registries/SKILL.md",
+      "computedHash": "8eb3b9c797bbb5e98f7e89536d1ab788228d1abe561873a1deb7865730d4e17e"
+    },
+    "container-scanning": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/scanning/container-scanning/SKILL.md",
+      "computedHash": "fcf1bd4ae20080723ee647c545e4313a3cefdd704e83182f1329e7b7a44e59a1"
+    },
+    "convex-backend": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/platforms/convex-backend/SKILL.md",
+      "computedHash": "446c34b2d772f4b6e87f79b728fac2a6d7695712f79570d211e1b5c3e5ba1439"
+    },
+    "dast-scanning": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/scanning/dast-scanning/SKILL.md",
+      "computedHash": "33605f68f86bfe833659a56511a869c4054c1bafebfd771e20a728523d98e73c"
+    },
+    "database-backups": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/databases/database-backups/SKILL.md",
+      "computedHash": "98bbc6f88581ae211894fd287a10cd3575ae3b2e8a0420cf760a3edbe42dc474"
+    },
+    "datadog": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/observability/datadog/SKILL.md",
+      "computedHash": "4f9164eae8e74adcf4f2e3b52b9c439e0d5ecf4898faa55437c90c067c309565"
+    },
+    "dependency-scanning": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/scanning/dependency-scanning/SKILL.md",
+      "computedHash": "ce56b870409d4be814ab0a98129f9ebc55198a542d36fb28875d5b343bebadd2"
+    },
+    "devcontainers-nix": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/developer-experience/devcontainers-nix/SKILL.md",
+      "computedHash": "9bf73d1c78c7956a519b011a5f583fadcf386be49407177ffc5880bfd8db1d96"
+    },
+    "disaster-recovery": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "compliance/continuity/disaster-recovery/SKILL.md",
+      "computedHash": "667db9aefd4e370098ab53445d495aef62382bc624bdf020310a0138e4a280e4"
+    },
+    "dns-management": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/networking/dns-management/SKILL.md",
+      "computedHash": "ac3ea7ca3f2db8f2ef8dac9eb55d236ba6a2f54fbcc586a1b68531e0168ad38b"
+    },
+    "docker-compose": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/containers/docker-compose/SKILL.md",
+      "computedHash": "442bd126b0266c01c41b2605ca17e43eea16b6283c55f10d8448b7c5b7c79fea"
+    },
+    "docker-management": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/containers/docker-management/SKILL.md",
+      "computedHash": "ac74fbf02675f2afb94a58946ca639a20ccfbbf9ee3e13d43a9128989666c99f"
+    },
+    "ebpf-observability": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/observability/ebpf-observability/SKILL.md",
+      "computedHash": "19104f858b447e543052a0472ef008bfdef5e62a89a074c6d65d9ee1d70f7fbb"
+    },
+    "elk-stack": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/observability/elk-stack/SKILL.md",
+      "computedHash": "9c1fcd1d63074ba605ac63eb240898f1dae9806edc8f34335b6d270001a882fd"
+    },
+    "feature-flags": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/release/feature-flags/SKILL.md",
+      "computedHash": "e09d7450f13660a157f0f830f605fd8cce2173e51963c29355725f138443edf3"
+    },
+    "fedramp-compliance": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "compliance/frameworks/fedramp-compliance/SKILL.md",
+      "computedHash": "077a227c56da5083baef1791ece841888bb006246a06edc34dbd4278edae9366"
+    },
+    "firebase-app-platform": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/platforms/firebase-app-platform/SKILL.md",
+      "computedHash": "61e8796502b28e625b1c6498e89b20917f4530b8b96d271c8fd1eb1033662821"
+    },
+    "firewall-config": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/network/firewall-config/SKILL.md",
+      "computedHash": "3562a63f257204fd5153ffb8f4cbdb612b1af16eef05ead98d5eac1061bf4090"
+    },
+    "gcp-audit-logs": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "compliance/auditing/gcp-audit-logs/SKILL.md",
+      "computedHash": "fe719f1f88a379bc9debf9db0aa1db5aeb019fc4957a40720eae73a98bf0f3e3"
+    },
+    "gcp-cloud-functions": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-gcp/gcp-cloud-functions/SKILL.md",
+      "computedHash": "ac9b9e31c430c4bde17c66e4b1120aa71a511d36ff1aa0065ea01b76ac06ec2b"
+    },
+    "gcp-cloud-sql": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-gcp/gcp-cloud-sql/SKILL.md",
+      "computedHash": "0bee1f19ae979f17f321e2eab0932560c49a06107fb3c95d5317720ed435d8b1"
+    },
+    "gcp-compute": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-gcp/gcp-compute/SKILL.md",
+      "computedHash": "e1cf737a4211c3ebd9f2236cecfe0bff541ea8e449e88e628ecc538d7aa9b764"
+    },
+    "gcp-gke": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-gcp/gcp-gke/SKILL.md",
+      "computedHash": "6750a58c4d10a640e49849d634eca606d6d99f1474434b0a2a1915b9ca478ac5"
+    },
+    "gcp-networking": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-gcp/gcp-networking/SKILL.md",
+      "computedHash": "3056ff361762e6afdf6d16eb1d57ff6548b08bbabb205da5f2d2e966aa78065a"
+    },
+    "gcp-secret-manager": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/secrets/gcp-secret-manager/SKILL.md",
+      "computedHash": "9ddae2239583b65994b8bae743cdfe820dfb85335efe3028adca952b6551a7d3"
+    },
+    "gdpr-compliance": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "compliance/frameworks/gdpr-compliance/SKILL.md",
+      "computedHash": "056aca1093f924cb288db2d809eb4370ff34cb5a73516ac620a35df076f2c3fa"
+    },
+    "git-workflow": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/release/git-workflow/SKILL.md",
+      "computedHash": "3f4b70863c9c3d771ef84aca522caf3f65fab0c1e0903523c0ec6f37b26c9ff7"
+    },
+    "github-actions": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/ci-cd/github-actions/SKILL.md",
+      "computedHash": "b2661a543efd8444b5a31a510326ff961cdebc0bb5c899693cce29c46d553820"
+    },
+    "gitlab-ci": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/ci-cd/gitlab-ci/SKILL.md",
+      "computedHash": "416b8e54d4e1028f12486bf45b573e1e93dfabfd70ff1f6528949187b7ddcc98"
+    },
+    "gpu-kubernetes-operations": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/local-ai/gpu-kubernetes-operations/SKILL.md",
+      "computedHash": "31b873360e47cd71dc78a53d3724e672a20fe397327838f88a6e3ddb7149e722"
+    },
+    "gpu-server-management": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/servers/gpu-server-management/SKILL.md",
+      "computedHash": "ebced325037751f1af2871a52e0c6e9b4aeee9e4e721ba2ed7f3afbf5e90e7d7"
+    },
+    "hashicorp-vault": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/secrets/hashicorp-vault/SKILL.md",
+      "computedHash": "ce5dbb6aa127ae7aac7997c95d94de0cd2a6a1fad8aa9dc84e73b0b8c6c9badb"
+    },
+    "helm-charts": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/orchestration/helm-charts/SKILL.md",
+      "computedHash": "8a705451d4ba403727b82154c4306d1dbf3c5ea4d66e021622ab08436325c91d"
+    },
+    "hipaa-compliance": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "compliance/frameworks/hipaa-compliance/SKILL.md",
+      "computedHash": "0da15ac6a11e18ee8048002e4c2281f62bbe21b78cf9ab448131ff4276c947d8"
+    },
+    "identity-access-management": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/it/identity-access-management/SKILL.md",
+      "computedHash": "439ba6c72fcd44bdfb82dd85de81cc89b1bf42510d01ad1502e7856f6e57f563"
+    },
+    "incident-management": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "compliance/continuity/incident-management/SKILL.md",
+      "computedHash": "cd6b6798a6ce27fcf10a5c5c5faf53316cbcb7ec73cf4a8f82cafdac39f8312c"
+    },
+    "incident-response": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/operations/incident-response/SKILL.md",
+      "computedHash": "ae961068b5741a860c21d659d143acca1f0046d043adb3e095a414c6cefce4c5"
+    },
+    "iso27001-compliance": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "compliance/frameworks/iso27001-compliance/SKILL.md",
+      "computedHash": "c469628d98c508956053b8ff19aef7fde143d903e61067ac3034947d2bfca741"
+    },
+    "jenkins": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/ci-cd/jenkins/SKILL.md",
+      "computedHash": "7db62af11e668447fd3fc8fc4987ef1f5101a9b33db618c0e22fe71a325db76f"
+    },
+    "kubernetes-hardening": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/hardening/kubernetes-hardening/SKILL.md",
+      "computedHash": "acbe5fbe0247217cc9e7e3761a5e25b3afb3040ea78ae0331fae375d8c78539e"
+    },
+    "kubernetes-ops": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/orchestration/kubernetes-ops/SKILL.md",
+      "computedHash": "f1de380c84f051eb396bea51e5e4afc71f293ec4f2826f2d0c791300311b6597"
+    },
+    "kustomize": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/orchestration/kustomize/SKILL.md",
+      "computedHash": "8e83a2ebe0d18770d438b4b67b0c9263173957d8b6c1bf00a2ed7e4c0a19c0fe"
+    },
+    "linux-administration": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/servers/linux-administration/SKILL.md",
+      "computedHash": "3cc5276adb9063ce6a7b52ab5bb3159953a6baeb16225d3a6dd8c27d624a5696"
+    },
+    "linux-hardening": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/hardening/linux-hardening/SKILL.md",
+      "computedHash": "bbf997a27834db5c6de22ecde55c46e9978186dde89f3e036b538bba27ac1969"
+    },
+    "llm-app-security": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/ai/llm-app-security/SKILL.md",
+      "computedHash": "a0268ce6f56bb12507f92995001563e77467d61f19954ec12aacf65e1d2d3a21"
+    },
+    "llm-caching": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/ai/llm-caching/SKILL.md",
+      "computedHash": "fcefc5306d0e49d301a4cf0a6dcad0e090152825601ea0e441681b5c2204de98"
+    },
+    "llm-cost-optimization": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/ai/llm-cost-optimization/SKILL.md",
+      "computedHash": "db037975942c37bf5e46844844ad04bf52223d6a3deefe09092064614eca8c7a"
+    },
+    "llm-fine-tuning": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/local-ai/llm-fine-tuning/SKILL.md",
+      "computedHash": "76fb8f84d9700dfa6ee977bdc523933fb0c03b57c38bc5d74766b6244ce69e33"
+    },
+    "llm-gateway": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/networking/llm-gateway/SKILL.md",
+      "computedHash": "3006ea43b5a4805c834891cc80a1349b764acbaa17abbd20cb71c88fd1dbe227"
+    },
+    "llm-inference-scaling": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/local-ai/llm-inference-scaling/SKILL.md",
+      "computedHash": "4b88e3c1703dd968147d199784e7791ce2b336748905657026ed580edf974e76"
+    },
+    "llmops-platform-engineering": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/ai/llmops-platform-engineering/SKILL.md",
+      "computedHash": "d7208510d51c49b32291caf4094e64f48970af4eeb823f5e454452c409b984b3"
+    },
+    "load-balancing": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/networking/load-balancing/SKILL.md",
+      "computedHash": "89322c52d95d2e35eef11ca75612922aeba2ad4d7dc47c72426bb9c609e14651"
+    },
+    "loki-logging": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/observability/loki-logging/SKILL.md",
+      "computedHash": "82ce76fbcac075837c3e44f26bfdab8b075ad35bb941b8ea39148b1b901e6315"
+    },
+    "mac-mini-llm-lab": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/local-ai/mac-mini-llm-lab/SKILL.md",
+      "computedHash": "3ed04018feebd1830ede87649c242c82399957ba1398e4007d6c673facfa3efa"
+    },
+    "mcp-server-security": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/ai/mcp-server-security/SKILL.md",
+      "computedHash": "eca1a79f0dccc192d75338af0deb433ee3bb96a07a4b6bcf6183f09a022237b3"
+    },
+    "mdm-device-management": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/it/mdm-device-management/SKILL.md",
+      "computedHash": "7fb67eea8b8be18c9c909dc3f24f79297b75f36bcc737a3719e775d5edf77de5"
+    },
+    "model-registry-governance": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/ai/model-registry-governance/SKILL.md",
+      "computedHash": "5933efd984012e3fe11e2c568c53f57c86bc7c6003413d9db9e6be88d6587845"
+    },
+    "model-serving-kubernetes": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/orchestration/model-serving-kubernetes/SKILL.md",
+      "computedHash": "52cde4ee69e2198ca3af04d44f84c6e53dae8713314dd8d521f948eea98375a5"
+    },
+    "model-supply-chain-security": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/ai/model-supply-chain-security/SKILL.md",
+      "computedHash": "55a03798074ca3dc0624f6fae6a249d234e093414b6ed41c0f4808ecf3d67ebf"
+    },
+    "mongodb": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/databases/mongodb/SKILL.md",
+      "computedHash": "98ae8241707b461316ec832821dbde435b4a81bb33556d10820a59e37ddbec55"
+    },
+    "multi-tenant-llm-hosting": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/local-ai/multi-tenant-llm-hosting/SKILL.md",
+      "computedHash": "ea782a62441565a1291fa2a4a271a38da9b59e44dbe1625e1042b6bd70f36929"
+    },
+    "mysql": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/databases/mysql/SKILL.md",
+      "computedHash": "44e135c26eee3d02ca3df9af7a498c8c7f9c3f40cc79ea587fd1939775113096"
+    },
+    "new-relic": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/observability/new-relic/SKILL.md",
+      "computedHash": "df03ba8fb1b9ab138c0c73fc36f3360921d24c7ec987e7160f5f8d14f11dd3be"
+    },
+    "nfs-storage": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/storage/nfs-storage/SKILL.md",
+      "computedHash": "20d3147216b692d052eac22b872cf9d8da92ed2ef5182567b6573795bc762976"
+    },
+    "object-storage": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/storage/object-storage/SKILL.md",
+      "computedHash": "59d88c0d7e5d53a3b430b6e301676c11feda7194b6d0dd623e774f181d8b96ca"
+    },
+    "ollama-stack": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/local-ai/ollama-stack/SKILL.md",
+      "computedHash": "39d98fd9d104208019cb41ee693fdc12fd8e71bdcfcaefc213a89bdaa12a00f3"
+    },
+    "openclaw-deployment-hardening": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/hardening/openclaw-deployment-hardening/SKILL.md",
+      "computedHash": "fb667dd12346f2f34fe73f543b985dd6d940a92a266cbdf7f42df46402a48b6c"
+    },
+    "openclaw-local-mac-mini": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/local-ai/openclaw-local-mac-mini/SKILL.md",
+      "computedHash": "5f25c21165e8a18935e00557ed31ba6a59f3c580e734fe8b92f7e1ce10a67b79"
+    },
+    "openclaw-security-hardening": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/local-ai/openclaw-security-hardening/SKILL.md",
+      "computedHash": "2e34db0f9677b3c7654bdf2fce116d34d800edf0a2284aaf4ac3491512e69734"
+    },
+    "openshift": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/orchestration/openshift/SKILL.md",
+      "computedHash": "1ec59acb832ec0f2d938b245882b5c8f5743272ce71b932d50c538e153a41ffe"
+    },
+    "opentelemetry": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/observability/opentelemetry/SKILL.md",
+      "computedHash": "1db334366ac3dfcdc03de392b9ebc49c21f03a8b68aec6ab4bb978552a8fd80e"
+    },
+    "opentofu-migration": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/iac/opentofu-migration/SKILL.md",
+      "computedHash": "ee2d525103f16bc8b027e386194f4f10f0235cac16599665d31f8564c8d18490"
+    },
+    "pci-dss-compliance": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "compliance/frameworks/pci-dss-compliance/SKILL.md",
+      "computedHash": "cca47486beccd24ca9550d026bb6eeaac0616bd58f8f3d86368a299054408398"
+    },
+    "penetration-testing": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/operations/penetration-testing/SKILL.md",
+      "computedHash": "f17e64564e1b42be6583eadd49cfdfa17ec568798ccafcc11cde48ac8182bae9"
+    },
+    "performance-tuning": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/servers/performance-tuning/SKILL.md",
+      "computedHash": "2080d972eab48b6f00c2f24d8f5f2513b8dccd2472502935cd943e1495db73fb"
+    },
+    "planetscale": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/databases/planetscale/SKILL.md",
+      "computedHash": "0ba40591cdaf636b4ea6f53b5d383a9c25e0c7f903bd37ce7b10ffe8e3afbd2f"
+    },
+    "platform-engineering": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/platforms/platform-engineering/SKILL.md",
+      "computedHash": "f047b4b0d071c68eda4999bc09c779d569d0450b760b0ba6f39bf1af0a363af1"
+    },
+    "podman": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/containers/podman/SKILL.md",
+      "computedHash": "e82aef39bd0f49bfc6ec3698ef72d72a357e5009fbbdb77fd1a53a09df7582d9"
+    },
+    "policy-as-code": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "compliance/governance/policy-as-code/SKILL.md",
+      "computedHash": "f35a973499aad2efa24d0d70460fd40c4c2af6648f0a13bf694d42e4bcbfdcf1"
+    },
+    "postgresql": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/databases/postgresql/SKILL.md",
+      "computedHash": "1a3dcc8804a791a1ca3286a34f8b841c8d179f59303840516634113bdb9dd0c1"
+    },
+    "prometheus-grafana": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/observability/prometheus-grafana/SKILL.md",
+      "computedHash": "8f6b7a89eb33098cc8d36da7c443d91f2608526ca8df0ee8a5d4b4ddd8fb37f6"
+    },
+    "prompt-injection-defense": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/ai/prompt-injection-defense/SKILL.md",
+      "computedHash": "385f0a96acbeb4f19a51fba814d38674d6a3c437eb2ea9b117e14de064b38c98"
+    },
+    "rag-infrastructure": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/local-ai/rag-infrastructure/SKILL.md",
+      "computedHash": "20dd61069cf2363997397d098650ed5fc88c1ed4b4c9d1ece0a5345ac0896629"
+    },
+    "rag-observability-evals": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/ai/rag-observability-evals/SKILL.md",
+      "computedHash": "8de8135b2289d8345cef909a1d37454843c7b504289f689c37946d750a6682f6"
+    },
+    "redis": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/databases/redis/SKILL.md",
+      "computedHash": "db7354b1421f77ce18279afb53e73162e444ee805636712797e7af7767fed8d0"
+    },
+    "reverse-proxy": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/networking/reverse-proxy/SKILL.md",
+      "computedHash": "07f33fdda533634da44489c6320d67391f1a8e243dd3e06891700e4ea8af72c0"
+    },
+    "runbook-creation": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "compliance/continuity/runbook-creation/SKILL.md",
+      "computedHash": "0844b736f6ad45471cc37bb2875e79508f0c9257c01198cfa119167274809e79"
+    },
+    "saas-security-posture": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/it/saas-security-posture/SKILL.md",
+      "computedHash": "336cf321664c97cbd7236a08817b8a4a279b4f96ff2aeafe3aa88db018e7fce0"
+    },
+    "sast-scanning": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/scanning/sast-scanning/SKILL.md",
+      "computedHash": "f04b941e9a9fb0ee7b8b23037310e758b97c8d989dee10741beb0a9410f889c0"
+    },
+    "sbom-supply-chain": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/scanning/sbom-supply-chain/SKILL.md",
+      "computedHash": "f29f1d62d3770b45e47b360b71228c02e82f39704b44c97fe925194bd3897103"
+    },
+    "security-automation": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/operations/security-automation/SKILL.md",
+      "computedHash": "b2ac210776645bc92cebbd5c354653ba058c486b2de0559118e51506dc2521b1"
+    },
+    "semantic-versioning": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/release/semantic-versioning/SKILL.md",
+      "computedHash": "a1c3722a3f4c2fe048fd76d8669c18f96f53c5e5b7512fc4fc475a1ed63b6978"
+    },
+    "service-mesh": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/networking/service-mesh/SKILL.md",
+      "computedHash": "dc03ea0e6739eacb9a06745e52051a2fda34f024fc0e9397b3eaf1f2e72b6b75"
+    },
+    "soc2-compliance": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "compliance/frameworks/soc2-compliance/SKILL.md",
+      "computedHash": "fc7ef39fec90d6650bdb15175df03413fe72d83798672eacd7f71269a3dbbb75"
+    },
+    "sops-encryption": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/secrets/sops-encryption/SKILL.md",
+      "computedHash": "260c2caa499befc0df757e44b013bf605da57a8cefaf7f7e9946c5c127810ab9"
+    },
+    "sre-dashboards": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "devops/observability/sre-dashboards/SKILL.md",
+      "computedHash": "ed7c837517edb313712e0908cbdc81ce98af443fab95323f0f587eb8dbf1f31a"
+    },
+    "ssh-configuration": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/servers/ssh-configuration/SKILL.md",
+      "computedHash": "32a2c78e332a7166668ef1ccee816a5209e9f613a243e627f2c207f6dc123cab"
+    },
+    "ssl-tls-management": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/network/ssl-tls-management/SKILL.md",
+      "computedHash": "776d86892c2af5cea0482ee3da3bcf3727873b5864bafd74accb8aeb969acc99"
+    },
+    "startup-it-troubleshooting": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/it/startup-it-troubleshooting/SKILL.md",
+      "computedHash": "6da7e95dd389e395b1e1a9233168f6044c934f49a403a38e384698ea98d675f9"
+    },
+    "supply-chain-attack-response": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/scanning/supply-chain-attack-response/SKILL.md",
+      "computedHash": "2cb40e5cb2f62c1e5fa9ccdef72bb6605f8fa6980d235b6fcbac4a09a664d7c9"
+    },
+    "systemd-services": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/servers/systemd-services/SKILL.md",
+      "computedHash": "ce569d355041e54fbed18eb4fd57675fdbca74356774498c63f7e55f59facbeb"
+    },
+    "terraform-aws": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-aws/terraform-aws/SKILL.md",
+      "computedHash": "89d32ce3527dd9ce9eed565ad2998c0c392436c45d8e7831f0e6f47cf8805fe7"
+    },
+    "terraform-azure": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-azure/terraform-azure/SKILL.md",
+      "computedHash": "5c139cb4ce2e248eb8ecebb0e488fa7aa76b88743b537745ce20ab87a09eaea5"
+    },
+    "terraform-gcp": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/cloud-gcp/terraform-gcp/SKILL.md",
+      "computedHash": "76a7ab6ff6256dd55fa3518adfabb43dbf6e6c4c5a52cc575d8d5ad2d4a0b286"
+    },
+    "threat-modeling": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/operations/threat-modeling/SKILL.md",
+      "computedHash": "7cb88adbbc166687a384f2f2f94c830928c881cf7bd4f4e63d062e13689008c1"
+    },
+    "user-management": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/servers/user-management/SKILL.md",
+      "computedHash": "9362e9e6ff34a40f6738a97c70d76c34cb31f3f1be5e30a4fdf4dc3ac0329a56"
+    },
+    "vector-database-ops": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/databases/vector-database-ops/SKILL.md",
+      "computedHash": "6b9d1cb57b45381954b99930f8a1c7c37736f3241266c4fd20d0b55a3ab039d2"
+    },
+    "vendor-management": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "compliance/governance/vendor-management/SKILL.md",
+      "computedHash": "ba11786ff9269c9860f697ff318445cc37ed85200a7b9812774a82eed64a2b58"
+    },
+    "vercel-deployments": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/platforms/vercel-deployments/SKILL.md",
+      "computedHash": "f56db8fea86e465326f27823a32ff9a3cb9d151c184815710603e2cd1bc6a4f9"
+    },
+    "vllm-server": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/local-ai/vllm-server/SKILL.md",
+      "computedHash": "41e441a189b074b889b9934d7ce6312c7634b6d13874bb107b133e6aa6d8e842"
+    },
+    "vpn-setup": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/network/vpn-setup/SKILL.md",
+      "computedHash": "a670cf773c9c18d03cf4c30a086cb483415cc729340f74e64d922766c9182334"
+    },
+    "vulnerability-scanning": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/scanning/vulnerability-scanning/SKILL.md",
+      "computedHash": "2333d5e8bb325ccdab365e83670626a5cf79304bc229bbe662e0e34bcdd2b6cf"
+    },
+    "waf-setup": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/network/waf-setup/SKILL.md",
+      "computedHash": "3c126611c437f8ca1d3b34175511e1df612412c750881bd8b1a7f6a2d88b7f43"
+    },
+    "windows-hardening": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/hardening/windows-hardening/SKILL.md",
+      "computedHash": "900c4fbc88b0be33ef5d559712e76abbd1bed6dfbe338291922004b69d266095"
+    },
+    "windows-server": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "infrastructure/servers/windows-server/SKILL.md",
+      "computedHash": "a60980d3ee36ca046f3394df4dc6ec72e3cb6b3bd9c2a5ecbff878914c89ae47"
+    },
+    "zero-trust": {
+      "source": "bagelhole/DevOps-Security-Agent-Skills",
+      "sourceType": "github",
+      "skillPath": "security/network/zero-trust/SKILL.md",
+      "computedHash": "8853271d255e0955580e1104a9500f180bd01d438c07c56adfc32a6560238ae1"
+    }
+  }
+}
