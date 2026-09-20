@@ -1,32 +1,8 @@
 import Link from "next/link";
+import { TrendingUp, TrendingDown } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import type { Trade } from "@/lib/types";
-import { deleteTrade } from "./actions";
-import { signOut } from "../login/actions";
-
-const SCREENSHOT_BUCKET = "trade-screenshots";
-const SIGNED_URL_TTL_SECONDS = 60 * 60; // 1 hour, regenerated on every page load
-
-async function withSignedScreenshotUrls(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  trades: Trade[]
-) {
-  const paths = trades
-    .map((t) => t.screenshot_url)
-    .filter((p): p is string => Boolean(p));
-
-  if (paths.length === 0) return new Map<string, string>();
-
-  const { data } = await supabase.storage
-    .from(SCREENSHOT_BUCKET)
-    .createSignedUrls(paths, SIGNED_URL_TTL_SECONDS);
-
-  const map = new Map<string, string>();
-  data?.forEach((entry) => {
-    if (entry.signedUrl && entry.path) map.set(entry.path, entry.signedUrl);
-  });
-  return map;
-}
+import { getSignedScreenshotUrls } from "@/lib/screenshot-url";
+import { DeleteTradeButton } from "./delete-trade-button";
 
 export default async function TradesPage() {
   const supabase = await createClient();
@@ -35,103 +11,122 @@ export default async function TradesPage() {
     .select("*")
     .order("traded_on", { ascending: false });
 
-  const signedUrls = await withSignedScreenshotUrls(supabase, trades ?? []);
+  const paths = (trades ?? [])
+    .map((t) => t.screenshot_url)
+    .filter((p): p is string => Boolean(p));
+  const signedUrls = await getSignedScreenshotUrls(supabase, paths);
+
+  const closed = (trades ?? []).filter((t) => t.pnl !== null);
+  const bestId = closed.length
+    ? closed.reduce((best, t) => ((t.pnl as number) > (best.pnl as number) ? t : best)).id
+    : null;
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Trades</h1>
-        <div className="flex gap-2">
-          <Link
-            href="/trades/new"
-            className="rounded-md bg-neutral-100 px-3 py-2 text-sm font-medium text-neutral-900 hover:bg-white"
-          >
-            New trade
-          </Link>
-          <form action={signOut}>
-            <button className="rounded-md border border-neutral-700 px-3 py-2 text-sm hover:bg-neutral-900">
-              Sign out
-            </button>
-          </form>
-        </div>
+    <main className="mx-auto max-w-3xl px-4 py-10">
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-2xl font-medium">Trades</h1>
+        <Link
+          href="/trades/new"
+          className="rounded-sm border border-accent px-4 py-2 text-sm text-accent transition-transform hover:bg-accent hover:text-accent-foreground active:scale-[0.97]"
+        >
+          Log a trade
+        </Link>
       </div>
 
-      {error && <p className="text-sm text-red-400">{error.message}</p>}
+      {error && <p className="text-sm text-loss">{error.message}</p>}
 
       {!error && (trades?.length ?? 0) === 0 && (
-        <p className="text-sm text-neutral-400">
-          No trades logged yet. Add your first one.
+        <p className="text-sm text-muted-foreground">
+          Nothing logged yet — your first entry starts the ledger.
         </p>
       )}
 
-      <ul className="space-y-3">
-        {trades?.map((trade) => (
-          <li
-            key={trade.id}
-            className="rounded-md border border-neutral-800 p-4"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="font-medium">{trade.traded_on}</span>
-                  <span
-                    className={
-                      trade.direction === "long"
-                        ? "text-emerald-400"
-                        : "text-red-400"
-                    }
-                  >
-                    {trade.direction.toUpperCase()}
-                  </span>
-                </div>
-                <p className="mt-1 text-sm text-neutral-400">
-                  Entry {trade.entry_price} · Exit {trade.exit_price ?? "—"} ·
-                  Size {trade.size}
-                  {trade.pnl !== null && (
-                    <>
-                      {" · PnL "}
+      <div className="divide-y divide-border border-y border-border">
+        {trades?.map((trade, i) => {
+          const isBest = trade.id === bestId;
+          const borderHoverColor =
+            trade.direction === "long" ? "hover:border-l-profit" : "hover:border-l-loss";
+          const glowColor =
+            trade.direction === "long"
+              ? "hover:shadow-[inset_0_0_0_1px_var(--profit),0_0_18px_-6px_var(--profit)]"
+              : "hover:shadow-[inset_0_0_0_1px_var(--loss),0_0_18px_-6px_var(--loss)]";
+          return (
+            <div
+              key={trade.id}
+              className={`animate-cell-in border-l-2 border-transparent py-4 pl-3 -ml-3 transition-all duration-200 ${borderHoverColor} motion-safe:hover:translate-x-0.5`}
+              style={{ animationDelay: `${Math.min(i, 15) * 30}ms` }}
+            >
+              <div
+                className={`group flex items-start justify-between gap-4 rounded-sm transition-shadow duration-200 ${glowColor}`}
+              >
+                <Link href={`/trades/${trade.id}`} className="min-w-0 flex-1 py-1 pl-1">
+                  <div className="flex items-baseline justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-sm">{trade.traded_on}</span>
                       <span
-                        className={
-                          trade.pnl >= 0 ? "text-emerald-400" : "text-red-400"
-                        }
+                        className={`flex items-center gap-1.5 text-sm ${
+                          trade.direction === "long" ? "text-profit" : "text-loss"
+                        }`}
                       >
-                        {trade.pnl}
+                        {trade.direction === "long" ? (
+                          <TrendingUp className="h-3.5 w-3.5" strokeWidth={2} />
+                        ) : (
+                          <TrendingDown className="h-3.5 w-3.5" strokeWidth={2} />
+                        )}
+                        {trade.direction === "long" ? "Long" : "Short"}
                       </span>
-                    </>
-                  )}
-                </p>
-                {trade.notes && (
-                  <p className="mt-2 whitespace-pre-wrap text-sm text-neutral-300">
-                    {trade.notes}
-                  </p>
-                )}
-                {trade.screenshot_url && signedUrls.get(trade.screenshot_url) && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={signedUrls.get(trade.screenshot_url)}
-                    alt="Trade screenshot"
-                    className="mt-2 max-h-48 rounded-md border border-neutral-800"
-                  />
-                )}
-              </div>
+                      {isBest && (
+                        <span className="animate-pulse-glow-profit rounded-sm border border-profit px-1.5 py-0.5 text-xs leading-none text-profit">
+                          Best
+                        </span>
+                      )}
+                    </div>
+                    <span
+                      className={`font-mono text-sm ${
+                        (trade.pnl ?? 0) >= 0 ? "text-profit" : "text-loss"
+                      }`}
+                    >
+                      {trade.pnl !== null
+                        ? `${trade.pnl >= 0 ? "+" : "−"}$${Math.abs(trade.pnl).toFixed(2)}`
+                        : "Open"}
+                    </span>
+                  </div>
 
-              <div className="flex shrink-0 gap-2">
-                <Link
-                  href={`/trades/${trade.id}/edit`}
-                  className="rounded-md border border-neutral-700 px-3 py-1.5 text-xs hover:bg-neutral-900"
-                >
-                  Edit
+                  <div className="mt-2 grid grid-cols-3 gap-4 font-mono text-xs text-muted-foreground sm:w-72">
+                    <span>Entry {trade.entry_price}</span>
+                    <span>Exit {trade.exit_price ?? "—"}</span>
+                    <span>Size {trade.size}</span>
+                  </div>
+
+                  {trade.notes && (
+                    <p className="mt-2 line-clamp-2 text-sm text-foreground/80">
+                      {trade.notes}
+                    </p>
+                  )}
+                  {trade.screenshot_url && signedUrls.get(trade.screenshot_url) && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={signedUrls.get(trade.screenshot_url)}
+                      alt="Trade screenshot"
+                      className="mt-3 max-h-40 rounded-sm border border-border transition-transform duration-200 group-hover:scale-[1.01]"
+                    />
+                  )}
                 </Link>
-                <form action={deleteTrade.bind(null, trade.id)}>
-                  <button className="rounded-md border border-red-900 px-3 py-1.5 text-xs text-red-400 hover:bg-red-950">
-                    Delete
-                  </button>
-                </form>
+
+                <div className="flex shrink-0 gap-3 pr-1 pt-1.5 text-xs">
+                  <Link
+                    href={`/trades/${trade.id}/edit`}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    Edit
+                  </Link>
+                  <DeleteTradeButton tradeId={trade.id} className="text-loss hover:underline" />
+                </div>
               </div>
             </div>
-          </li>
-        ))}
-      </ul>
+          );
+        })}
+      </div>
     </main>
   );
 }
