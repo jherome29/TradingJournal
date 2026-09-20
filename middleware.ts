@@ -49,7 +49,7 @@ export async function middleware(request: NextRequest) {
 
   if (user && isAuthRoute) {
     const url = request.nextUrl.clone();
-    url.pathname = "/trades";
+    url.pathname = "/dashboard";
     return NextResponse.redirect(url);
   }
 
