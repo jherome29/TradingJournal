@@ -35,7 +35,7 @@ export function TradeForm({
           <label htmlFor="direction" className={labelClass}>
             Direction
           </label>
-          <DirectionSelect name="direction" defaultValue={trade?.direction} />
+          <DirectionSelect name="direction" defaultValue={trade?.direction ?? undefined} />
         </div>
 
         <div className="space-y-1">
@@ -47,8 +47,7 @@ export function TradeForm({
             name="entry_price"
             type="number"
             step="0.01"
-            required
-            defaultValue={trade?.entry_price}
+            defaultValue={trade?.entry_price ?? undefined}
             className={numericFieldClass}
           />
         </div>
@@ -76,8 +75,7 @@ export function TradeForm({
             name="size"
             type="number"
             step="0.01"
-            required
-            defaultValue={trade?.size}
+            defaultValue={trade?.size ?? undefined}
             className={numericFieldClass}
           />
         </div>
@@ -93,6 +91,48 @@ export function TradeForm({
             step="0.01"
             defaultValue={trade?.pnl ?? undefined}
             className={numericFieldClass}
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label htmlFor="risk" className={labelClass}>
+            Risk ($)
+          </label>
+          <input
+            id="risk"
+            name="risk"
+            type="number"
+            step="0.01"
+            defaultValue={trade?.risk ?? undefined}
+            className={numericFieldClass}
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label htmlFor="r_multiple" className={labelClass}>
+            R multiple
+          </label>
+          <input
+            id="r_multiple"
+            name="r_multiple"
+            type="number"
+            step="0.01"
+            defaultValue={trade?.r_multiple ?? undefined}
+            className={numericFieldClass}
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label htmlFor="session" className={labelClass}>
+            Session
+          </label>
+          <input
+            id="session"
+            name="session"
+            type="text"
+            placeholder="e.g. New York, London, Asian"
+            defaultValue={trade?.session ?? undefined}
+            className={fieldClass}
           />
         </div>
       </div>

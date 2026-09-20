@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { TrendingUp, TrendingDown } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getSignedScreenshotUrls } from "@/lib/screenshot-url";
 import { DeleteTradeButton } from "./delete-trade-button";
+import { DirectionBadge } from "../direction-badge";
 
 export default async function TradesPage() {
   const supabase = await createClient();
@@ -45,11 +45,17 @@ export default async function TradesPage() {
         {trades?.map((trade, i) => {
           const isBest = trade.id === bestId;
           const borderHoverColor =
-            trade.direction === "long" ? "hover:border-l-profit" : "hover:border-l-loss";
+            trade.direction === "long"
+              ? "hover:border-l-profit"
+              : trade.direction === "short"
+                ? "hover:border-l-loss"
+                : "hover:border-l-muted-foreground";
           const glowColor =
             trade.direction === "long"
               ? "hover:shadow-[inset_0_0_0_1px_var(--profit),0_0_18px_-6px_var(--profit)]"
-              : "hover:shadow-[inset_0_0_0_1px_var(--loss),0_0_18px_-6px_var(--loss)]";
+              : trade.direction === "short"
+                ? "hover:shadow-[inset_0_0_0_1px_var(--loss),0_0_18px_-6px_var(--loss)]"
+                : "";
           return (
             <div
               key={trade.id}
@@ -63,17 +69,8 @@ export default async function TradesPage() {
                   <div className="flex items-baseline justify-between gap-4">
                     <div className="flex items-center gap-3">
                       <span className="font-mono text-sm">{trade.traded_on}</span>
-                      <span
-                        className={`flex items-center gap-1.5 text-sm ${
-                          trade.direction === "long" ? "text-profit" : "text-loss"
-                        }`}
-                      >
-                        {trade.direction === "long" ? (
-                          <TrendingUp className="h-3.5 w-3.5" strokeWidth={2} />
-                        ) : (
-                          <TrendingDown className="h-3.5 w-3.5" strokeWidth={2} />
-                        )}
-                        {trade.direction === "long" ? "Long" : "Short"}
+                      <span className="text-sm">
+                        <DirectionBadge direction={trade.direction} />
                       </span>
                       {isBest && (
                         <span className="animate-pulse-glow-profit rounded-sm border border-profit px-1.5 py-0.5 text-xs leading-none text-profit">
@@ -93,9 +90,9 @@ export default async function TradesPage() {
                   </div>
 
                   <div className="mt-2 grid grid-cols-3 gap-4 font-mono text-xs text-muted-foreground sm:w-72">
-                    <span>Entry {trade.entry_price}</span>
+                    <span>Entry {trade.entry_price ?? "—"}</span>
                     <span>Exit {trade.exit_price ?? "—"}</span>
-                    <span>Size {trade.size}</span>
+                    <span>Size {trade.size ?? "—"}</span>
                   </div>
 
                   {trade.notes && (

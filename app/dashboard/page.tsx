@@ -2,6 +2,7 @@ import Link from "next/link";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { fetchAllTrades } from "@/lib/fetch-trades";
 import { computeOverallStats, computeEquityCurve } from "@/lib/trade-stats";
+import { DirectionBadge } from "../direction-badge";
 import { EquityChart } from "./equity-chart";
 import { CountUp } from "../count-up";
 
@@ -10,16 +11,6 @@ function streakLabel(streak: { type: "win" | "loss" | "none"; count: number }) {
   const noun = streak.type === "win" ? "win" : "loss";
   const plural = streak.count === 1 ? noun : `${noun}${noun.endsWith("s") ? "es" : "s"}`;
   return `${streak.count}-${plural} streak`;
-}
-
-function DirectionIcon({ direction }: { direction: "long" | "short" }) {
-  const Icon = direction === "long" ? TrendingUp : TrendingDown;
-  return (
-    <Icon
-      className={`h-3.5 w-3.5 ${direction === "long" ? "text-profit" : "text-loss"}`}
-      strokeWidth={2}
-    />
-  );
 }
 
 export default async function DashboardPage() {
@@ -93,14 +84,7 @@ export default async function DashboardPage() {
               >
                 <div className="flex items-center gap-3">
                   <span className="font-mono text-muted-foreground">{trade.traded_on}</span>
-                  <span
-                    className={`flex items-center gap-1.5 ${
-                      trade.direction === "long" ? "text-profit" : "text-loss"
-                    }`}
-                  >
-                    <DirectionIcon direction={trade.direction} />
-                    {trade.direction === "long" ? "Long" : "Short"}
-                  </span>
+                  <DirectionBadge direction={trade.direction} />
                 </div>
                 <span
                   className={`font-mono ${
