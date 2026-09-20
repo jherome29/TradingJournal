@@ -10,7 +10,19 @@ const config: Config = {
     extend: {
       colors: {
         background: "var(--background)",
+        surface: "var(--surface)",
+        "surface-raised": "var(--surface-raised)",
         foreground: "var(--foreground)",
+        "muted-foreground": "var(--muted-foreground)",
+        border: "var(--border)",
+        accent: "var(--accent)",
+        "accent-foreground": "var(--accent-foreground)",
+        profit: "var(--profit)",
+        loss: "var(--loss)",
+      },
+      fontFamily: {
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "monospace"],
       },
     },
   },
