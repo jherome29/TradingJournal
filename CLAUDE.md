@@ -113,7 +113,39 @@ what passed CI.
 
 Two separate expansions are planned **after** the core journal has been used
 enough in practice to know what's actually worth tracking. Neither should be
-started speculatively — don't scaffold for these ahead of time.
+started speculatively — don't scaffold for these ahead of time. The tree
+below is the target end-state shape, kept here as a reference for *what*
+these two layers eventually cover — it is not a build order and none of the
+schema-dependent or AI branches should be started until the core journal has
+real usage behind it (see "Current phase" above: right now the app has zero
+real trades, only seed/mock data used to design the UI).
+
+```
+Dashboard          — built: win rate, expectancy, equity curve, recent trades
+                     not built: Average R (needs risk_pct/R-multiple)
+Analytics          — built: direction, day/time, distribution, drawdown
+                     not built: Strategy, Session breakdowns (need those
+                     fields on `trades` first)
+Calendar           — built
+Trade Journal
+  └─ Trade Detail   — built: entry/exit/size/notes/screenshot
+                     not built: Chart annotation, structured Execution
+                     fields, Reasoning, Psychology, Review — likely new
+                     columns or a related table, shape TBD by real usage
+Setups / Playbook   — not built: a separate strategies/setups table a trade
+                     can reference via strategy_tag
+Psychology          — not built: undefined scope — figure out what this
+                     actually captures once logging real trades surfaces
+                     the need
+Mistakes / Rule
+  Violations        — not built: likely a tags/rules table trades can
+                     reference, not a `trades` column
+AI Insights         — not built: this *is* the "AI engineering layer" below
+  ├─ Trade Review        → AI-assisted trade feedback
+  ├─ Pattern Detection   → RAG over trade history + notes
+  ├─ Weekly Review       → agent that can query/summarize the journal
+  └─ Questions to Review → same agent, different report shape
+```
 
 **1. Analysis & insights** — this journal is meant to become more than a
 log: an overview layer with stats, charts, and breakdowns (win rate, PnL
@@ -124,9 +156,11 @@ without manually re-reading every entry.
 **2. AI engineering layer** — once the schema and the analytics layer above
 have stabilized from real usage:
 - Structured extraction from old Notion export/imports into `trades` rows
-- AI-assisted trade feedback (review a trade or a stretch of trades)
-- RAG over trade history + notes
-- An agent that can query/summarize the journal conversationally
+- AI-assisted trade feedback (review a trade or a stretch of trades) — "Trade
+  Review" in the tree above
+- RAG over trade history + notes — "Pattern Detection" above
+- An agent that can query/summarize the journal conversationally — "Weekly
+  Review" / "Questions to Review" above
 - An MCP server exposing this journal's data/tools to other agents
 - n8n (or similar) for orchestration/automation between the above
 - Eval-gated CI for anything AI-generated, before it ships
