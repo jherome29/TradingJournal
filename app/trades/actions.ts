@@ -56,13 +56,13 @@ export async function createTrade(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const fields = parseTradeForm(formData);
-
+  let fields: ReturnType<typeof parseTradeForm>;
   let screenshot_url: string | null;
   try {
+    fields = parseTradeForm(formData);
     screenshot_url = await uploadScreenshotIfPresent(supabase, user.id, formData);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Screenshot upload failed.";
+    const message = err instanceof Error ? err.message : "Invalid trade details.";
     redirect(`/trades/new?error=${encodeURIComponent(message)}`);
   }
 
@@ -87,13 +87,13 @@ export async function updateTrade(tradeId: string, formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const fields = parseTradeForm(formData);
-
+  let fields: ReturnType<typeof parseTradeForm>;
   let newScreenshotPath: string | null;
   try {
+    fields = parseTradeForm(formData);
     newScreenshotPath = await uploadScreenshotIfPresent(supabase, user.id, formData);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Screenshot upload failed.";
+    const message = err instanceof Error ? err.message : "Invalid trade details.";
     redirect(`/trades/${tradeId}/edit?error=${encodeURIComponent(message)}`);
   }
 

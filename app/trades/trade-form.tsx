@@ -120,7 +120,7 @@ export function TradeForm({
           name="screenshot"
           type="file"
           accept="image/*"
-          className="w-full text-sm text-muted-foreground"
+          className="w-full cursor-pointer text-sm text-muted-foreground file:mr-3 file:cursor-pointer file:rounded-sm file:border file:border-border file:bg-surface-raised file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-foreground file:transition-colors hover:file:bg-surface hover:file:border-accent"
         />
       </div>
 
