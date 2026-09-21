@@ -2,6 +2,7 @@ import type { Trade } from "@/lib/types";
 import { TradeDateField } from "./date-field";
 import { DirectionSelect } from "./direction-select";
 import { SubmitButton } from "./submit-button";
+import { RiskPnlFields } from "./risk-pnl-fields";
 import { DeleteScreenshotButton } from "./delete-screenshot-button";
 
 const fieldClass =
@@ -83,47 +84,7 @@ export function TradeForm({
           />
         </div>
 
-        <div className="space-y-1">
-          <label htmlFor="pnl" className={labelClass}>
-            PnL
-          </label>
-          <input
-            id="pnl"
-            name="pnl"
-            type="number"
-            step="0.01"
-            defaultValue={trade?.pnl ?? undefined}
-            className={numericFieldClass}
-          />
-        </div>
-
-        <div className="space-y-1">
-          <label htmlFor="risk" className={labelClass}>
-            Risk ($)
-          </label>
-          <input
-            id="risk"
-            name="risk"
-            type="number"
-            step="0.01"
-            defaultValue={trade?.risk ?? undefined}
-            className={numericFieldClass}
-          />
-        </div>
-
-        <div className="space-y-1">
-          <label htmlFor="r_multiple" className={labelClass}>
-            R multiple
-          </label>
-          <input
-            id="r_multiple"
-            name="r_multiple"
-            type="number"
-            step="0.01"
-            defaultValue={trade?.r_multiple ?? undefined}
-            className={numericFieldClass}
-          />
-        </div>
+        <RiskPnlFields defaultRisk={trade?.risk} defaultPnl={trade?.pnl} />
 
         <div className="space-y-1">
           <label htmlFor="session" className={labelClass}>
