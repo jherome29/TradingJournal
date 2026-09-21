@@ -1,0 +1,51 @@
+name: Integration & E2E
+
+# Advisory only, not a required status check: these hit the real Supabase
+# project over the network, so a transient network/Supabase issue shouldn't
+# block a merge the way a real code regression should.
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      E2E_TEST_USER_A_EMAIL: ${{ secrets.E2E_TEST_USER_A_EMAIL }}
+      E2E_TEST_USER_A_PASSWORD: ${{ secrets.E2E_TEST_USER_A_PASSWORD }}
+      E2E_TEST_USER_B_EMAIL: ${{ secrets.E2E_TEST_USER_B_EMAIL }}
+      E2E_TEST_USER_B_PASSWORD: ${{ secrets.E2E_TEST_USER_B_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: RLS integration tests
+        run: npm run test:integration
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E tests
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
