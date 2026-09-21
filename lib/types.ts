@@ -15,10 +15,17 @@ export interface Trade {
   size: number | null;
   pnl: number | null;
   notes: string | null;
-  screenshot_url: string | null; // storage object path, not a public URL
   risk: number | null; // dollar risk amount
   r_multiple: number | null;
   session: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface TradeScreenshot {
+  id: string;
+  trade_id: string;
+  storage_path: string; // storage object path, not a public URL
+  position: number;
+  created_at: string;
 }
