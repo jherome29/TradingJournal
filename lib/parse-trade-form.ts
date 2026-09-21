@@ -38,6 +38,19 @@ function parseOptionalFiniteNumber(raw: string, label: string): number | null {
   return value;
 }
 
+/**
+ * R-multiple is a strict function of risk and pnl (how many multiples of
+ * what you risked you made or lost), not an independent value -- letting it
+ * be typed in separately is how the imported Notion data ended up with
+ * inconsistent rows (e.g. a negative risk paired with a stated R-multiple
+ * that didn't match pnl / risk at all). Computing it here is the single
+ * source of truth for trades logged going forward.
+ */
+function computeRMultiple(pnl: number | null, risk: number | null): number | null {
+  if (pnl === null || risk === null || risk === 0) return null;
+  return Math.round((pnl / risk) * 100) / 100;
+}
+
 export function parseTradeForm(formData: FormData): TradeFormInput {
   const tradedOn = formData.get("traded_on") as string;
   const notesRaw = formData.get("notes") as string | null;
@@ -53,6 +66,9 @@ export function parseTradeForm(formData: FormData): TradeFormInput {
     throw new Error("Date is required.");
   }
 
+  const pnl = parseOptionalFiniteNumber(formData.get("pnl") as string, "Net PnL");
+  const risk = parseOptionalPositiveNumber(formData.get("risk") as string, "Risk");
+
   return {
     traded_on: tradedOn,
     direction,
@@ -63,9 +79,9 @@ export function parseTradeForm(formData: FormData): TradeFormInput {
     entry_price: parseOptionalPositiveNumber(formData.get("entry_price") as string, "Entry price"),
     exit_price: parseOptionalPositiveNumber(formData.get("exit_price") as string, "Exit price"),
     size: parseOptionalPositiveNumber(formData.get("size") as string, "Size"),
-    pnl: parseOptionalFiniteNumber(formData.get("pnl") as string, "PnL"),
-    risk: parseOptionalPositiveNumber(formData.get("risk") as string, "Risk"),
-    r_multiple: parseOptionalFiniteNumber(formData.get("r_multiple") as string, "R multiple"),
+    pnl,
+    risk,
+    r_multiple: computeRMultiple(pnl, risk),
     session: sessionRaw || null,
     notes: notesRaw || null,
   };

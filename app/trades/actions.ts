@@ -20,33 +20,59 @@ const MAX_SCREENSHOT_BYTES = 8 * 1024 * 1024; // 8MB
 
 function validateScreenshot(file: File) {
   if (!ALLOWED_SCREENSHOT_TYPES.has(file.type)) {
-    throw new Error("Screenshot must be a JPEG, PNG, WebP, or GIF image.");
+    throw new Error("Screenshots must be JPEG, PNG, WebP, or GIF images.");
   }
   if (file.size > MAX_SCREENSHOT_BYTES) {
-    throw new Error("Screenshot must be 8MB or smaller.");
+    throw new Error("Each screenshot must be 8MB or smaller.");
   }
 }
 
-async function uploadScreenshotIfPresent(
+/** A trade can have any number of screenshots; the <input multiple> field submits them all under the same "screenshots" key. */
+function getScreenshotFiles(formData: FormData): File[] {
+  return formData
+    .getAll("screenshots")
+    .filter((entry): entry is File => entry instanceof File && entry.size > 0);
+}
+
+async function uploadScreenshots(
   supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string,
-  formData: FormData
-): Promise<string | null> {
-  const file = formData.get("screenshot") as File | null;
-  if (!file || file.size === 0) return null;
+  files: File[]
+): Promise<string[]> {
+  files.forEach(validateScreenshot);
 
-  validateScreenshot(file);
-
-  const path = `${userId}/${randomUUID()}-${file.name}`;
-  const { error } = await supabase.storage
-    .from(SCREENSHOT_BUCKET)
-    .upload(path, file, { upsert: false });
-
-  if (error) {
-    throw new Error(`Screenshot upload failed: ${error.message}`);
+  const paths: string[] = [];
+  for (const file of files) {
+    const path = `${userId}/${randomUUID()}-${file.name}`;
+    const { error } = await supabase.storage
+      .from(SCREENSHOT_BUCKET)
+      .upload(path, file, { upsert: false });
+    if (error) {
+      throw new Error(`Screenshot upload failed: ${error.message}`);
+    }
+    paths.push(path);
   }
+  return paths;
+}
 
-  return path;
+async function insertScreenshotRows(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  tradeId: string,
+  paths: string[],
+  startPosition: number
+) {
+  if (paths.length === 0) return;
+
+  const { error } = await supabase.from("trade_screenshots").insert(
+    paths.map((storage_path, i) => ({
+      trade_id: tradeId,
+      storage_path,
+      position: startPosition + i,
+    }))
+  );
+  if (error) {
+    throw new Error(`Saving screenshot(s) failed: ${error.message}`);
+  }
 }
 
 export async function createTrade(formData: FormData) {
@@ -57,24 +83,26 @@ export async function createTrade(formData: FormData) {
   if (!user) redirect("/login");
 
   let fields: ReturnType<typeof parseTradeForm>;
-  let screenshot_url: string | null;
+  let screenshotPaths: string[];
   try {
     fields = parseTradeForm(formData);
-    screenshot_url = await uploadScreenshotIfPresent(supabase, user.id, formData);
+    screenshotPaths = await uploadScreenshots(supabase, user.id, getScreenshotFiles(formData));
   } catch (err) {
     const message = err instanceof Error ? err.message : "Invalid trade details.";
     redirect(`/trades/new?error=${encodeURIComponent(message)}`);
   }
 
-  const { error } = await supabase.from("trades").insert({
-    ...fields,
-    screenshot_url,
-    user_id: user.id,
-  });
+  const { data: trade, error } = await supabase
+    .from("trades")
+    .insert({ ...fields, user_id: user.id })
+    .select("id")
+    .single();
 
-  if (error) {
-    redirect(`/trades/new?error=${encodeURIComponent(error.message)}`);
+  if (error || !trade) {
+    redirect(`/trades/new?error=${encodeURIComponent(error?.message ?? "Could not save trade.")}`);
   }
+
+  await insertScreenshotRows(supabase, trade.id, screenshotPaths, 0);
 
   revalidatePath("/trades");
   redirect("/trades");
@@ -88,31 +116,50 @@ export async function updateTrade(tradeId: string, formData: FormData) {
   if (!user) redirect("/login");
 
   let fields: ReturnType<typeof parseTradeForm>;
-  let newScreenshotPath: string | null;
+  let newScreenshotPaths: string[];
   try {
     fields = parseTradeForm(formData);
-    newScreenshotPath = await uploadScreenshotIfPresent(supabase, user.id, formData);
+    newScreenshotPaths = await uploadScreenshots(supabase, user.id, getScreenshotFiles(formData));
   } catch (err) {
     const message = err instanceof Error ? err.message : "Invalid trade details.";
     redirect(`/trades/${tradeId}/edit?error=${encodeURIComponent(message)}`);
   }
 
-  const update: Record<string, unknown> = { ...fields };
-  if (newScreenshotPath) {
-    update.screenshot_url = newScreenshotPath;
-  }
-
-  const { error } = await supabase
-    .from("trades")
-    .update(update)
-    .eq("id", tradeId);
-
+  const { error } = await supabase.from("trades").update(fields).eq("id", tradeId);
   if (error) {
     redirect(`/trades/${tradeId}/edit?error=${encodeURIComponent(error.message)}`);
   }
 
+  // New screenshots are appended after whatever is already attached.
+  const { count } = await supabase
+    .from("trade_screenshots")
+    .select("id", { count: "exact", head: true })
+    .eq("trade_id", tradeId);
+  await insertScreenshotRows(supabase, tradeId, newScreenshotPaths, count ?? 0);
+
   revalidatePath("/trades");
   redirect("/trades");
+}
+
+export async function deleteScreenshot(tradeId: string, screenshotId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: screenshot } = await supabase
+    .from("trade_screenshots")
+    .select("storage_path")
+    .eq("id", screenshotId)
+    .single();
+
+  if (screenshot) {
+    await supabase.storage.from(SCREENSHOT_BUCKET).remove([screenshot.storage_path]);
+    await supabase.from("trade_screenshots").delete().eq("id", screenshotId);
+  }
+
+  revalidatePath(`/trades/${tradeId}/edit`);
 }
 
 export async function deleteTrade(tradeId: string) {
@@ -122,6 +169,19 @@ export async function deleteTrade(tradeId: string) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  const { data: screenshots } = await supabase
+    .from("trade_screenshots")
+    .select("storage_path")
+    .eq("trade_id", tradeId);
+
+  if (screenshots && screenshots.length > 0) {
+    await supabase.storage
+      .from(SCREENSHOT_BUCKET)
+      .remove(screenshots.map((s) => s.storage_path));
+  }
+
+  // trade_screenshots rows are removed automatically via the trade_id
+  // foreign key's ON DELETE CASCADE.
   await supabase.from("trades").delete().eq("id", tradeId);
 
   revalidatePath("/trades");

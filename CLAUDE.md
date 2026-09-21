@@ -36,14 +36,25 @@ Single table, `public.trades` (migration:
 | `id` | uuid, PK | `gen_random_uuid()` |
 | `user_id` | uuid, FK → `auth.users` | ownership; RLS scopes every policy to `auth.uid() = user_id` |
 | `traded_on` | date | not null |
-| `direction` | text | `check (direction in ('long','short'))` |
-| `entry_price` | numeric(10,2) | not null |
+| `direction` | text | `check (direction in ('long','short'))`, nullable |
+| `entry_price` | numeric(10,2) | nullable |
 | `exit_price` | numeric(10,2) | nullable — trade may still be open |
-| `size` | numeric(10,2) | not null |
+| `size` | numeric(10,2) | nullable |
 | `pnl` | numeric(12,2) | nullable |
+| `risk` | numeric(12,2) | nullable — dollar risk amount |
+| `r_multiple` | numeric(6,2) | nullable |
+| `session` | text | nullable — freeform (e.g. "New York", "London", "Asia") |
 | `notes` | text | freeform, the Notion-replacement field |
 | `screenshot_url` | text | **storage object path, not a public URL** — bucket `trade-screenshots` is private; signed URLs are generated on read (see `app/trades/page.tsx`) |
 | `created_at` / `updated_at` | timestamptz | `updated_at` maintained by trigger |
+
+`direction`, `entry_price`, and `size` were relaxed to nullable in
+`supabase/migrations/20260920000000_relax_and_extend_trades.sql` to
+accommodate 258 real historical trades imported from a Notion export, where
+these fields were never consistently tracked. New trades logged through the
+app UI still require all three at the application layer (see
+`lib/parse-trade-form.ts`) — this is a DB-level exception for imported
+history, not a relaxed going-forward standard.
 
 RLS is enabled with per-operation policies (select/insert/update/delete),
 each scoped to `auth.uid() = user_id`. Table-level `GRANT`s to
@@ -53,11 +64,10 @@ migration).
 
 **This schema is intentionally minimal and expected to change.** Do not
 over-design it further. Known likely additions once real usage clarifies
-what matters: `session` / time-of-day, `strategy_tag`, `risk_pct`,
-R-multiple, maybe splitting `notes` into structured sub-fields. When adding
-columns, prefer a new migration with `alter table trades add column ...`
-over restructuring what's there — this table will get altered often in this
-phase, that's expected, not a design failure.
+what matters: `strategy_tag`, maybe splitting `notes` into structured
+sub-fields. When adding columns, prefer a new migration with `alter table
+trades add column ...` over restructuring what's there — this table will
+get altered often in this phase, that's expected, not a design failure.
 
 ## Commands
 
@@ -117,15 +127,20 @@ started speculatively — don't scaffold for these ahead of time. The tree
 below is the target end-state shape, kept here as a reference for *what*
 these two layers eventually cover — it is not a build order and none of the
 schema-dependent or AI branches should be started until the core journal has
-real usage behind it (see "Current phase" above: right now the app has zero
-real trades, only seed/mock data used to design the UI).
+real usage behind it (see "Current phase" above: 258 real historical trades
+have been imported from a Notion export as of 2026-09-21, but no day-to-day
+usage of the app itself has happened yet — most of those imported rows are
+missing `direction`/`entry_price`/`size`/`exit_price` since the trader
+tracked dollar risk and R-multiples instead of price levels).
 
 ```
 Dashboard          — built: win rate, expectancy, equity curve, recent trades
-                     not built: Average R (needs risk_pct/R-multiple)
+                     not built: Average R (schema has `r_multiple` now,
+                     view not built yet)
 Analytics          — built: direction, day/time, distribution, drawdown
-                     not built: Strategy, Session breakdowns (need those
-                     fields on `trades` first)
+                     not built: Strategy breakdown (needs `strategy_tag`);
+                     Session breakdown (schema has `session` now, view not
+                     built yet)
 Calendar           — built
 Trade Journal
   └─ Trade Detail   — built: entry/exit/size/notes/screenshot

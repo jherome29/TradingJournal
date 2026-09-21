@@ -91,3 +91,97 @@ describe.skipIf(!hasCredentials)("RLS: trades table cross-user isolation", () =>
     expect(data?.user_id).toBe(userAId);
   });
 });
+
+describe.skipIf(!hasCredentials)("RLS: trade_screenshots cross-user isolation", () => {
+  let clientA: SupabaseClient;
+  let clientB: SupabaseClient;
+  let tradeId: string;
+  let screenshotId: string;
+
+  beforeAll(async () => {
+    clientA = await signedInClient(USER_A_EMAIL!, USER_A_PASSWORD!);
+    clientB = await signedInClient(USER_B_EMAIL!, USER_B_PASSWORD!);
+
+    const {
+      data: { user },
+    } = await clientA.auth.getUser();
+
+    const { data: trade, error: tradeError } = await clientA
+      .from("trades")
+      .insert({
+        user_id: user!.id,
+        traded_on: "2026-01-01",
+        direction: "long",
+        entry_price: 100,
+        size: 1,
+      })
+      .select()
+      .single();
+    if (tradeError) throw tradeError;
+    tradeId = trade.id;
+
+    // Ownership of trade_screenshots is derived entirely from the parent
+    // trade (no user_id column on this table), so this is the row that
+    // actually exercises the EXISTS-join policy.
+    const { data: screenshot, error: screenshotError } = await clientA
+      .from("trade_screenshots")
+      .insert({ trade_id: tradeId, storage_path: `${user!.id}/rls-test.png`, position: 0 })
+      .select()
+      .single();
+    if (screenshotError) throw screenshotError;
+    screenshotId = screenshot.id;
+  });
+
+  afterAll(async () => {
+    if (tradeId) {
+      await clientA.from("trades").delete().eq("id", tradeId);
+    }
+  });
+
+  it("prevents user B from seeing user A's screenshot", async () => {
+    const { data } = await clientB.from("trade_screenshots").select("*").eq("id", screenshotId);
+    expect(data).toEqual([]);
+  });
+
+  it("prevents user B from inserting a screenshot on user A's trade", async () => {
+    const { error } = await clientB
+      .from("trade_screenshots")
+      .insert({ trade_id: tradeId, storage_path: "attacker/x.png", position: 1 });
+    expect(error).not.toBeNull();
+  });
+
+  it("prevents user B from deleting user A's screenshot", async () => {
+    const { data } = await clientB
+      .from("trade_screenshots")
+      .delete()
+      .eq("id", screenshotId)
+      .select();
+    expect(data).toEqual([]);
+
+    const { data: stillExists } = await clientA
+      .from("trade_screenshots")
+      .select("id")
+      .eq("id", screenshotId)
+      .single();
+    expect(stillExists?.id).toBe(screenshotId);
+  });
+
+  it("still allows user A to read their own screenshot", async () => {
+    const { data } = await clientA
+      .from("trade_screenshots")
+      .select("*")
+      .eq("id", screenshotId)
+      .single();
+    expect(data?.trade_id).toBe(tradeId);
+  });
+
+  it("removes screenshots when the parent trade is deleted (cascade)", async () => {
+    await clientA.from("trades").delete().eq("id", tradeId);
+    const { data } = await clientA
+      .from("trade_screenshots")
+      .select("id")
+      .eq("id", screenshotId);
+    expect(data).toEqual([]);
+    tradeId = ""; // already deleted, skip the afterAll cleanup
+  });
+});
