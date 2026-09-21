@@ -11,10 +11,21 @@ export default async function TradesPage() {
     .select("*")
     .order("traded_on", { ascending: false });
 
-  const paths = (trades ?? [])
-    .map((t) => t.screenshot_url)
-    .filter((p): p is string => Boolean(p));
-  const signedUrls = await getSignedScreenshotUrls(supabase, paths);
+  const tradeIds = (trades ?? []).map((t) => t.id);
+  const { data: coverShots } = tradeIds.length
+    ? await supabase
+        .from("trade_screenshots")
+        .select("trade_id, storage_path")
+        .in("trade_id", tradeIds)
+        .eq("position", 0)
+    : { data: [] };
+  const coverPathByTradeId = new Map(
+    (coverShots ?? []).map((s) => [s.trade_id, s.storage_path])
+  );
+  const signedUrls = await getSignedScreenshotUrls(
+    supabase,
+    Array.from(coverPathByTradeId.values())
+  );
 
   const closed = (trades ?? []).filter((t) => t.pnl !== null);
   const bestId = closed.length
@@ -44,6 +55,8 @@ export default async function TradesPage() {
       <div className="divide-y divide-border border-y border-border">
         {trades?.map((trade, i) => {
           const isBest = trade.id === bestId;
+          const coverPath = coverPathByTradeId.get(trade.id);
+          const coverUrl = coverPath ? signedUrls.get(coverPath) : undefined;
           const borderHoverColor =
             trade.direction === "long"
               ? "hover:border-l-profit"
@@ -100,10 +113,10 @@ export default async function TradesPage() {
                       {trade.notes}
                     </p>
                   )}
-                  {trade.screenshot_url && signedUrls.get(trade.screenshot_url) && (
+                  {coverUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={signedUrls.get(trade.screenshot_url)}
+                      src={coverUrl}
                       alt="Trade screenshot"
                       className="mt-3 max-h-40 rounded-sm border border-border transition-transform duration-200 group-hover:scale-[1.01]"
                     />
