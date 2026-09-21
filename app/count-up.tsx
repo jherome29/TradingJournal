@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useReducedMotion } from "./use-reduced-motion";
 
 /** Ticks a number from 0 to `value` once on mount. One deliberate motion
     moment on figures that matter — not a scroll effect scattered everywhere.
@@ -15,14 +16,12 @@ export function CountUp({
   duration?: number;
   delay?: number;
 }) {
-  const [display, setDisplay] = useState(0);
+  const reducedMotion = useReducedMotion();
+  const [display, setDisplay] = useState(() => (reducedMotion ? value : 0));
   const frame = useRef<number>();
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setDisplay(value);
-      return;
-    }
+    if (reducedMotion) return;
 
     let start: number | null = null;
 
@@ -43,8 +42,7 @@ export function CountUp({
     return () => {
       if (frame.current) cancelAnimationFrame(frame.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, delay]);
+  }, [value, delay, duration, reducedMotion]);
 
   return <>{Math.abs(display).toFixed(2)}</>;
 }

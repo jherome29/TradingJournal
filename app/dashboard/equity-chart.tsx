@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -10,14 +9,7 @@ import {
   YAxis,
 } from "recharts";
 import type { EquityPoint } from "@/lib/trade-stats";
-
-function useReducedMotion() {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  }, []);
-  return reduced;
-}
+import { useReducedMotion } from "../use-reduced-motion";
 
 export function EquityChart({ data }: { data: EquityPoint[] }) {
   const reducedMotion = useReducedMotion();

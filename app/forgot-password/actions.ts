@@ -8,7 +8,7 @@ export async function requestPasswordReset(formData: FormData) {
   const email = formData.get("email") as string;
   const supabase = await createClient();
 
-  const host = headers().get("host")!;
+  const host = (await headers()).get("host")!;
   const protocol = host.startsWith("localhost") || host.startsWith("127.0.0.1") ? "http" : "https";
 
   await supabase.auth.resetPasswordForEmail(email, {

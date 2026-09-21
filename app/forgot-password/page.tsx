@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { requestPasswordReset } from "./actions";
 
-export default function ForgotPasswordPage({
+export default async function ForgotPasswordPage({
   searchParams,
 }: {
-  searchParams: { message?: string };
+  searchParams: Promise<{ message?: string }>;
 }) {
+  const { message } = await searchParams;
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8">
@@ -30,8 +31,8 @@ export default function ForgotPasswordPage({
             />
           </div>
 
-          {searchParams.message && (
-            <p className="text-sm text-profit">{searchParams.message}</p>
+          {message && (
+            <p className="text-sm text-profit">{message}</p>
           )}
 
           <button
