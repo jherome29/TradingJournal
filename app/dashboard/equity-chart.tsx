@@ -62,7 +62,10 @@ export function EquityChart({ data }: { data: EquityPoint[] }) {
           }}
           labelStyle={{ color: "#8c8574" }}
           itemStyle={{ fontFamily: "var(--font-mono)" }}
-          formatter={(value: number) => [`$${value.toFixed(2)}`, "Cumulative P/L"]}
+          formatter={(value) => {
+            const numeric = typeof value === "number" ? value : Number(value);
+            return [`$${numeric.toFixed(2)}`, "Cumulative P/L"];
+          }}
         />
         <Area
           type="monotone"
