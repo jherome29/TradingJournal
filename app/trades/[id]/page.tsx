@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getSignedScreenshotUrl } from "@/lib/screenshot-url";
+import { getSignedScreenshotUrls } from "@/lib/screenshot-url";
 import { DirectionBadge } from "../../direction-badge";
 
 export default async function TradeDetailPage({
@@ -18,9 +18,19 @@ export default async function TradeDetailPage({
 
   if (!trade) notFound();
 
-  const screenshotUrl = trade.screenshot_url
-    ? await getSignedScreenshotUrl(supabase, trade.screenshot_url)
-    : null;
+  const { data: screenshots } = await supabase
+    .from("trade_screenshots")
+    .select("id, storage_path")
+    .eq("trade_id", trade.id)
+    .order("position", { ascending: true });
+
+  const signedUrls = await getSignedScreenshotUrls(
+    supabase,
+    (screenshots ?? []).map((s) => s.storage_path)
+  );
+  const screenshotUrls = (screenshots ?? [])
+    .map((s) => signedUrls.get(s.storage_path))
+    .filter((url): url is string => Boolean(url));
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-10">
@@ -60,15 +70,22 @@ export default async function TradeDetailPage({
         </div>
       )}
 
-      {screenshotUrl && (
+      {screenshotUrls.length > 0 && (
         <div className="mt-6">
-          <h2 className="mb-2 text-sm text-muted-foreground">Screenshot</h2>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={screenshotUrl}
-            alt="Trade screenshot"
-            className="w-full rounded-sm border border-border"
-          />
+          <h2 className="mb-2 text-sm text-muted-foreground">
+            {screenshotUrls.length > 1 ? "Screenshots" : "Screenshot"}
+          </h2>
+          <div className="space-y-3">
+            {screenshotUrls.map((url) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={url}
+                src={url}
+                alt="Trade screenshot"
+                className="w-full rounded-sm border border-border"
+              />
+            ))}
+          </div>
         </div>
       )}
     </main>
