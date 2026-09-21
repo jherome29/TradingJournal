@@ -7,13 +7,14 @@ import { DirectionBadge } from "../../direction-badge";
 export default async function TradeDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const supabase = await createClient();
   const { data: trade } = await supabase
     .from("trades")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (!trade) notFound();
