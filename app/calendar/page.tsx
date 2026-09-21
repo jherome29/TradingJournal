@@ -38,14 +38,15 @@ function pnlIntensityStyle(pnl: number, maxAbsPnl: number) {
 export default async function CalendarPage({
   searchParams,
 }: {
-  searchParams: { month?: string };
+  searchParams: Promise<{ month?: string }>;
 }) {
   const trades = await fetchAllTrades();
   const daily = computeDailyPnl(trades);
   const dailyByDate = new Map(daily.map((d) => [d.date, d]));
   const maxAbsPnl = Math.max(1, ...daily.map((d) => Math.abs(d.pnl)));
 
-  const { year, monthIndex } = parseMonthParam(searchParams.month);
+  const { month } = await searchParams;
+  const { year, monthIndex } = parseMonthParam(month);
   const firstOfMonth = new Date(year, monthIndex, 1);
   const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
   const startWeekday = firstOfMonth.getDay();

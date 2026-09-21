@@ -10,14 +10,16 @@ export default async function EditTradePage({
   params,
   searchParams,
 }: {
-  params: { id: string };
-  searchParams: { error?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
+  const { id } = await params;
+  const { error } = await searchParams;
   const supabase = await createClient();
   const { data: trade } = await supabase
     .from("trades")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (!trade) notFound();
@@ -51,7 +53,7 @@ export default async function EditTradePage({
         action={boundUpdate}
         trade={trade}
         existingScreenshots={existingScreenshots}
-        error={searchParams.error}
+        error={error}
         submitLabel="Save changes"
         pendingLabel="Saving…"
       />

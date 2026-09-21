@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { signIn, signUp } from "./actions";
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { error?: string; message?: string };
+  searchParams: Promise<{ error?: string; message?: string }>;
 }) {
+  const params = await searchParams;
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8">
@@ -49,11 +50,11 @@ export default function LoginPage({
             />
           </div>
 
-          {searchParams.error && (
-            <p className="text-sm text-loss">{searchParams.error}</p>
+          {params.error && (
+            <p className="text-sm text-loss">{params.error}</p>
           )}
-          {searchParams.message && (
-            <p className="text-sm text-profit">{searchParams.message}</p>
+          {params.message && (
+            <p className="text-sm text-profit">{params.message}</p>
           )}
 
           <div className="flex gap-2 pt-2">
