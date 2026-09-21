@@ -4,13 +4,16 @@ updates:
     directory: "/"
     target-branch: "develop"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
     groups:
-      development-dependencies:
-        dependency-type: "development"
+      # Everything that isn't a major bump lands as one combined PR instead
+      # of one per package -- major bumps are left out of the group so they
+      # still surface individually, since those are exactly the ones that
+      # need deliberate, one-at-a-time review (see the Next.js 14->16 case).
+      minor-and-patch:
         update-types:
           - "minor"
           - "patch"
@@ -19,6 +22,11 @@ updates:
     directory: "/"
     target-branch: "develop"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     labels:
       - "dependencies"
+    groups:
+      actions-minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
