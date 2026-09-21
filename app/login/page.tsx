@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { signIn, signUp } from "./actions";
 
 export default function LoginPage({
@@ -30,9 +31,14 @@ export default function LoginPage({
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="password" className="text-sm text-muted-foreground">
-              Password
-            </label>
+            <div className="flex items-baseline justify-between">
+              <label htmlFor="password" className="text-sm text-muted-foreground">
+                Password
+              </label>
+              <Link href="/forgot-password" className="text-xs text-accent hover:underline">
+                Forgot password?
+              </Link>
+            </div>
             <input
               id="password"
               name="password"
