@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getSignedScreenshotUrls } from "@/lib/screenshot-url";
 import { updateTrade } from "../../actions";
 import { TradeForm } from "../../trade-form";
 import { DeleteTradeButton } from "../../delete-trade-button";
@@ -21,6 +22,20 @@ export default async function EditTradePage({
 
   if (!trade) notFound();
 
+  const { data: screenshots } = await supabase
+    .from("trade_screenshots")
+    .select("id, storage_path")
+    .eq("trade_id", trade.id)
+    .order("position", { ascending: true });
+
+  const signedUrls = await getSignedScreenshotUrls(
+    supabase,
+    (screenshots ?? []).map((s) => s.storage_path)
+  );
+  const existingScreenshots = (screenshots ?? [])
+    .map((s) => ({ id: s.id, url: signedUrls.get(s.storage_path) }))
+    .filter((s): s is { id: string; url: string } => Boolean(s.url));
+
   const boundUpdate = updateTrade.bind(null, trade.id);
 
   return (
@@ -35,6 +50,7 @@ export default async function EditTradePage({
       <TradeForm
         action={boundUpdate}
         trade={trade}
+        existingScreenshots={existingScreenshots}
         error={searchParams.error}
         submitLabel="Save changes"
         pendingLabel="Saving…"

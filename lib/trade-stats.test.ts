@@ -22,7 +22,6 @@ function trade(overrides: Partial<Trade>): Trade {
     size: 1,
     pnl: 10,
     notes: null,
-    screenshot_url: null,
     risk: null,
     r_multiple: null,
     session: null,

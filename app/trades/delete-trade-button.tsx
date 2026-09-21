@@ -27,7 +27,7 @@ export function DeleteTradeButton({
             Delete this trade?
           </AlertDialog.Title>
           <AlertDialog.Description className="mt-2 text-sm text-muted-foreground">
-            The entry and its screenshot are removed permanently. This can&rsquo;t be undone.
+            The entry and its screenshots are removed permanently. This can&rsquo;t be undone.
           </AlertDialog.Description>
           <div className="mt-6 flex justify-end gap-4 text-sm">
             <AlertDialog.Cancel asChild>
