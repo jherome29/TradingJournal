@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { TrendingUp, TrendingDown } from "lucide-react";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSignedScreenshotUrl } from "@/lib/screenshot-url";
+import { DirectionBadge } from "../../direction-badge";
 
 export default async function TradeDetailPage({
   params,
@@ -27,18 +27,7 @@ export default async function TradeDetailPage({
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-baseline gap-3">
           <h1 className="font-mono text-2xl font-medium">{trade.traded_on}</h1>
-          <span
-            className={`flex items-center gap-1.5 text-sm ${
-              trade.direction === "long" ? "text-profit" : "text-loss"
-            }`}
-          >
-            {trade.direction === "long" ? (
-              <TrendingUp className="h-3.5 w-3.5" strokeWidth={2} />
-            ) : (
-              <TrendingDown className="h-3.5 w-3.5" strokeWidth={2} />
-            )}
-            {trade.direction === "long" ? "Long" : "Short"}
-          </span>
+          <DirectionBadge direction={trade.direction} />
         </div>
         <div className="flex gap-4 text-sm">
           <Link href="/trades" className="text-muted-foreground hover:text-foreground">
@@ -51,14 +40,17 @@ export default async function TradeDetailPage({
       </div>
 
       <div className="flex flex-wrap gap-x-8 gap-y-3 border-y border-border py-4 text-sm">
-        <Stat label="Entry" value={trade.entry_price} />
+        <Stat label="Entry" value={trade.entry_price ?? "—"} />
         <Stat label="Exit" value={trade.exit_price ?? "—"} />
-        <Stat label="Size" value={trade.size} />
+        <Stat label="Size" value={trade.size ?? "—"} />
         <Stat
           label="P/L"
           value={trade.pnl !== null ? `${trade.pnl >= 0 ? "+" : "−"}${Math.abs(trade.pnl)}` : "Open"}
           tone={trade.pnl !== null ? (trade.pnl >= 0 ? "profit" : "loss") : undefined}
         />
+        {trade.risk !== null && <Stat label="Risk" value={`$${trade.risk}`} />}
+        {trade.r_multiple !== null && <Stat label="R multiple" value={`${trade.r_multiple}R`} />}
+        {trade.session && <Stat label="Session" value={trade.session} />}
       </div>
 
       {trade.notes && (
