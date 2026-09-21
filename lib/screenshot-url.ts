@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 const SCREENSHOT_BUCKET = "trade-screenshots";
 const SIGNED_URL_TTL_SECONDS = 60 * 60; // 1 hour, regenerated on every request
 
-/** The bucket is private; screenshot_url stores the object path, not a usable URL. */
+/** The bucket is private; trade_screenshots.storage_path stores the object path, not a usable URL. */
 export async function getSignedScreenshotUrl(
   supabase: Awaited<ReturnType<typeof createClient>>,
   path: string
