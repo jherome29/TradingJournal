@@ -40,8 +40,17 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const isAuthRoute = request.nextUrl.pathname.startsWith("/login");
+  // /reset-password's session comes from a URL fragment the recovery email
+  // link lands on -- fragments never reach the server, so this request looks
+  // unauthenticated here even on a valid link. It has to be public so the
+  // page can load and let client-side JS pick up the session from the
+  // fragment before deciding whether the link was actually valid.
+  const isPublicRoute =
+    isAuthRoute ||
+    request.nextUrl.pathname.startsWith("/forgot-password") ||
+    request.nextUrl.pathname.startsWith("/reset-password");
 
-  if (!user && !isAuthRoute) {
+  if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
