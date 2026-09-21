@@ -19,7 +19,7 @@ deliberately deferred until real usage shows what's worth building (see
 
 ## Tech stack
 
-- **Next.js 14**, App Router, TypeScript, strict mode
+- **Next.js 16**, App Router, TypeScript, strict mode
 - **Supabase**: Postgres (trades table), Auth (email/password), Storage
   (screenshots)
 - **Tailwind CSS** for styling
@@ -45,7 +45,6 @@ Single table, `public.trades` (migration:
 | `r_multiple` | numeric(6,2) | nullable |
 | `session` | text | nullable — freeform (e.g. "New York", "London", "Asia") |
 | `notes` | text | freeform, the Notion-replacement field |
-| `screenshot_url` | text | **storage object path, not a public URL** — bucket `trade-screenshots` is private; signed URLs are generated on read (see `app/trades/page.tsx`) |
 | `created_at` / `updated_at` | timestamptz | `updated_at` maintained by trigger |
 
 `direction`, `entry_price`, and `size` were relaxed to nullable in
@@ -55,6 +54,24 @@ these fields were never consistently tracked. New trades logged through the
 app UI still require all three at the application layer (see
 `lib/parse-trade-form.ts`) — this is a DB-level exception for imported
 history, not a relaxed going-forward standard.
+
+Screenshots live in a separate table, `public.trade_screenshots` (migration:
+`supabase/migrations/20260921000000_add_trade_screenshots.sql`), one row per
+image so a trade can have any number of them:
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | uuid, PK | `gen_random_uuid()` |
+| `trade_id` | uuid, FK → `trades` | `on delete cascade` |
+| `storage_path` | text | **storage object path, not a public URL** — bucket `trade-screenshots` is private; signed URLs are generated on read (see `lib/screenshot-url.ts`) |
+| `position` | integer | display order within a trade, default 0 |
+| `created_at` | timestamptz | |
+
+RLS on `trade_screenshots` has no direct `user_id` column, so its policies
+join back to `trades` (`exists (select 1 from trades where trades.id =
+trade_screenshots.trade_id and trades.user_id = auth.uid())`) rather than
+filtering on the row itself directly. The original `trades.screenshot_url`
+column was dropped in this same migration.
 
 RLS is enabled with per-operation policies (select/insert/update/delete),
 each scoped to `auth.uid() = user_id`. Table-level `GRANT`s to
@@ -74,7 +91,7 @@ get altered often in this phase, that's expected, not a design failure.
 ```bash
 npm run dev         # dev server
 npm run build        # production build
-npm run lint          # ESLint (next lint)
+npm run lint          # ESLint (flat config, eslint.config.mjs)
 npm run typecheck      # tsc --noEmit
 npm test                 # vitest run
 ```
@@ -97,7 +114,7 @@ what passed CI.
 
 - **Strict TypeScript.** No `any` as an escape hatch — if a Supabase/`@supabase/ssr`
   callback type isn't inferred, write the interface explicitly (see
-  `lib/supabase/server.ts`, `middleware.ts` for the pattern with cookie
+  `lib/supabase/server.ts`, `proxy.ts` for the pattern with cookie
   callbacks).
 - **Server Actions over API routes** for mutations (`app/trades/actions.ts`,
   `app/login/actions.ts`) — this is a single-app CRUD surface, a separate API
