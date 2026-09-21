@@ -37,7 +37,7 @@ describe("parseTradeForm", () => {
     });
   });
 
-  it("parses risk, r_multiple, and session when provided", () => {
+  it("parses risk and session when provided", () => {
     const result = parseTradeForm(
       formData({
         traded_on: "2025-01-15",
@@ -45,13 +45,57 @@ describe("parseTradeForm", () => {
         entry_price: "2650.5",
         size: "0.5",
         risk: "55",
-        r_multiple: "-1.5",
         session: "New York",
       })
     );
     expect(result.risk).toBe(55);
-    expect(result.r_multiple).toBe(-1.5);
     expect(result.session).toBe("New York");
+  });
+
+  it("computes r_multiple from pnl and risk instead of accepting it directly", () => {
+    const win = parseTradeForm(
+      formData({
+        traded_on: "2025-01-15",
+        direction: "long",
+        risk: "50",
+        pnl: "125",
+      })
+    );
+    expect(win.r_multiple).toBe(2.5);
+
+    const loss = parseTradeForm(
+      formData({
+        traded_on: "2025-01-15",
+        direction: "long",
+        risk: "50",
+        pnl: "-50",
+      })
+    );
+    expect(loss.r_multiple).toBe(-1);
+
+    // A form field named r_multiple is ignored -- it's derived, not input.
+    const ignoresManualInput = parseTradeForm(
+      formData({
+        traded_on: "2025-01-15",
+        direction: "long",
+        risk: "50",
+        pnl: "125",
+        r_multiple: "999",
+      })
+    );
+    expect(ignoresManualInput.r_multiple).toBe(2.5);
+  });
+
+  it("r_multiple is null when risk or pnl is missing", () => {
+    const noRisk = parseTradeForm(
+      formData({ traded_on: "2025-01-15", direction: "long", pnl: "100" })
+    );
+    expect(noRisk.r_multiple).toBeNull();
+
+    const noPnl = parseTradeForm(
+      formData({ traded_on: "2025-01-15", direction: "long", risk: "50" })
+    );
+    expect(noPnl.r_multiple).toBeNull();
   });
 
   it("allows entry price and size to be omitted", () => {
@@ -195,6 +239,6 @@ describe("parseTradeForm", () => {
           pnl: "not-a-number",
         })
       )
-    ).toThrow("PnL must be a number.");
+    ).toThrow("Net PnL must be a number.");
   });
 });
