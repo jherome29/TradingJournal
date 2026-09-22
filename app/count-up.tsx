@@ -18,7 +18,7 @@ export function CountUp({
 }) {
   const reducedMotion = useReducedMotion();
   const [display, setDisplay] = useState(() => (reducedMotion ? value : 0));
-  const frame = useRef<number>();
+  const frame = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     if (reducedMotion) return;
