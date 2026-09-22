@@ -10,6 +10,7 @@ import {
   computePnlDistribution,
   computeAverageR,
   computeSessionBreakdown,
+  computeDirectionCoverage,
 } from "./trade-stats";
 import type { Trade } from "./types";
 
@@ -207,6 +208,26 @@ describe("computePnlDistribution", () => {
 
   it("returns an empty array with no closed trades", () => {
     expect(computePnlDistribution([])).toEqual([]);
+  });
+});
+
+describe("computeDirectionCoverage", () => {
+  it("counts closed trades that have a direction logged against the total", () => {
+    const trades = [
+      trade({ direction: "long", pnl: 100 }),
+      trade({ direction: null, pnl: 50 }),
+      trade({ direction: "short", pnl: -20 }),
+    ];
+    expect(computeDirectionCoverage(trades)).toEqual({ withDirection: 2, total: 3 });
+  });
+
+  it("excludes open trades (null pnl) from both counts", () => {
+    const trades = [trade({ direction: "long", pnl: 100 }), trade({ direction: null, pnl: null, exit_price: null })];
+    expect(computeDirectionCoverage(trades)).toEqual({ withDirection: 1, total: 1 });
+  });
+
+  it("returns zero/zero for no trades", () => {
+    expect(computeDirectionCoverage([])).toEqual({ withDirection: 0, total: 0 });
   });
 });
 
