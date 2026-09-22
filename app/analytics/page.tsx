@@ -1,5 +1,6 @@
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { fetchAllTrades } from "@/lib/fetch-trades";
+import { parseDateRange, filterTradesByRange } from "@/lib/date-range";
 import {
   computeOverallStats,
   computeDirectionBreakdown,
@@ -7,8 +8,21 @@ import {
   computeMaxDrawdown,
   computeDayOfWeekBreakdown,
   computePnlDistribution,
+  computeRMultipleDistribution,
+  computeSessionBreakdown,
+  computeDirectionCoverage,
+  computeRiskConsistency,
+  computePostOutcomeStats,
+  computeAverageR,
+  computeBestWorstByR,
 } from "@/lib/trade-stats";
+
+// Below this many trades, a session's win rate is close to noise -- flagged
+// in the UI rather than presented with the same visual confidence as a
+// well-sampled bucket.
+const LOW_SAMPLE_THRESHOLD = 15;
 import { CountUp } from "../count-up";
+import { RangeFilter } from "../range-filter";
 
 function money(n: number) {
   return `${n >= 0 ? "+" : "−"}$${Math.abs(n).toFixed(2)}`;
@@ -22,8 +36,13 @@ function barGlow(positive: boolean, intensity: number) {
   return `0 0 ${6 + intensity * 14}px -2px rgba(${color}, ${0.35 + intensity * 0.5})`;
 }
 
-export default async function AnalyticsPage() {
-  const trades = await fetchAllTrades();
+export default async function AnalyticsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ range?: string }>;
+}) {
+  const range = parseDateRange((await searchParams).range);
+  const trades = filterTradesByRange(await fetchAllTrades(), range);
   const stats = computeOverallStats(trades);
   const directions = computeDirectionBreakdown(trades);
   const maxAbsDirectionPnl = Math.max(1, ...directions.map((d) => Math.abs(d.pnl)));
@@ -31,24 +50,52 @@ export default async function AnalyticsPage() {
 
   const expectancy = computeExpectancy(trades);
   const drawdown = computeMaxDrawdown(trades);
-  const dayOfWeek = computeDayOfWeekBreakdown(trades);
+  // XAUUSD doesn't trade weekends -- Sat/Sun are always empty, so they're
+  // dropped rather than shown as permanently-dead bars.
+  const dayOfWeek = computeDayOfWeekBreakdown(trades).filter(
+    (d) => d.day !== "Sat" && d.day !== "Sun"
+  );
   const maxAbsDayPnl = Math.max(1, ...dayOfWeek.map((d) => Math.abs(d.pnl)));
+  const directionCoverage = computeDirectionCoverage(trades);
+  const sessions = computeSessionBreakdown(trades);
+  const maxAbsSessionPnl = Math.max(1, ...sessions.map((s) => Math.abs(s.pnl)));
+  const sessionTotal = sessions.reduce((sum, s) => sum + s.count, 0);
+  const sessionWithLabel =
+    sessionTotal - (sessions.find((s) => s.session === "Unspecified")?.count ?? 0);
   const distribution = computePnlDistribution(trades);
   const maxBucketCount = Math.max(1, ...distribution.map((b) => b.count));
+  const rDistribution = computeRMultipleDistribution(trades);
+  const maxRBucketCount = Math.max(1, ...rDistribution.map((b) => b.count));
+  const riskConsistency = computeRiskConsistency(trades);
+  const postOutcome = computePostOutcomeStats(trades);
+  const averageR = computeAverageR(trades);
+  const bestWorstByR = computeBestWorstByR(trades);
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="mb-8 text-2xl font-medium">Analytics</h1>
+      <h1 className="mb-6 text-2xl font-medium">Analytics</h1>
+
+      <div className="mb-8">
+        <RangeFilter basePath="/analytics" current={range} />
+      </div>
 
       {stats.totalTrades === 0 ? (
         <p className="text-sm text-muted-foreground">
-          Nothing to analyze yet — this fills in once you have closed trades.
+          {range === "all"
+            ? "Nothing to analyze yet — this fills in once you have closed trades."
+            : "No closed trades in this period."}
         </p>
       ) : (
         <div className="space-y-10">
           <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3 lg:grid-cols-4">
             <Stat label="Expectancy / trade" tone={expectancy >= 0 ? "profit" : "loss"} delay={0}>
               {expectancy >= 0 ? "+" : "−"}$<CountUp value={Math.abs(expectancy)} delay={0} />
+              {averageR !== null && (
+                <span className="ml-1 text-xs text-muted-foreground">
+                  ({averageR >= 0 ? "+" : ""}
+                  {averageR.toFixed(2)}R avg)
+                </span>
+              )}
             </Stat>
             <Stat label="Max drawdown" tone="loss" delay={80}>
               −$<CountUp value={drawdown.amount} delay={80} />
@@ -63,13 +110,41 @@ export default async function AnalyticsPage() {
               {stats.profitFactor !== null ? <CountUp value={stats.profitFactor} delay={320} /> : "∞"}
             </Stat>
             {stats.bestTrade && (
-              <Stat label="Best trade" tone="profit" glow="profit" delay={400}>
+              <Stat label="Best trade ($)" tone="profit" glow="profit" delay={400}>
                 +$<CountUp value={stats.bestTrade.pnl ?? 0} delay={400} />
               </Stat>
             )}
             {stats.worstTrade && (
-              <Stat label="Worst trade" tone="loss" glow="loss" delay={480}>
+              <Stat label="Worst trade ($)" tone="loss" glow="loss" delay={480}>
                 −$<CountUp value={Math.abs(stats.worstTrade.pnl ?? 0)} delay={480} />
+              </Stat>
+            )}
+            {bestWorstByR.best && (
+              <Stat label="Best trade (R)" tone="profit" delay={640}>
+                {(bestWorstByR.best.r_multiple ?? 0) >= 0 ? "+" : "−"}
+                <CountUp value={Math.abs(bestWorstByR.best.r_multiple ?? 0)} delay={640} />R
+                <span className="ml-1 text-xs text-muted-foreground">
+                  (${(bestWorstByR.best.pnl ?? 0).toFixed(2)})
+                </span>
+              </Stat>
+            )}
+            {bestWorstByR.worst && (
+              <Stat label="Worst trade (R)" tone="loss" delay={720}>
+                {(bestWorstByR.worst.r_multiple ?? 0) >= 0 ? "+" : "−"}
+                <CountUp value={Math.abs(bestWorstByR.worst.r_multiple ?? 0)} delay={720} />R
+                <span className="ml-1 text-xs text-muted-foreground">
+                  (${(bestWorstByR.worst.pnl ?? 0).toFixed(2)})
+                </span>
+              </Stat>
+            )}
+            {riskConsistency.avgRisk !== null && (
+              <Stat label="Avg risk" delay={560}>
+                $<CountUp value={riskConsistency.avgRisk} delay={560} />
+                {riskConsistency.stddevRisk !== null && (
+                  <span className="ml-1 text-xs text-muted-foreground">
+                    ± ${riskConsistency.stddevRisk.toFixed(2)}
+                  </span>
+                )}
               </Stat>
             )}
           </div>
@@ -77,11 +152,23 @@ export default async function AnalyticsPage() {
           {drawdown.peakDate && drawdown.troughDate && drawdown.amount > 0 && (
             <p className="-mt-4 text-xs text-muted-foreground">
               Drawdown ran from {drawdown.peakDate} to {drawdown.troughDate}
+              {drawdown.recoveryDate
+                ? ` -- recovered by ${drawdown.recoveryDate}`
+                : " -- not yet recovered"}
             </p>
           )}
 
           <div>
-            <h2 className="mb-4 text-sm text-muted-foreground">Long vs. short</h2>
+            <div className="mb-4 flex items-baseline justify-between">
+              <h2 className="text-sm text-muted-foreground">Long vs. short</h2>
+              {directionCoverage.total > 0 &&
+                directionCoverage.withDirection < directionCoverage.total && (
+                  <span className="text-xs text-muted-foreground">
+                    {directionCoverage.withDirection} of {directionCoverage.total} trades have a
+                    direction logged
+                  </span>
+                )}
+            </div>
             <div className="space-y-5">
               {directions.map((d, i) => {
                 const widthPct = (Math.abs(d.pnl) / maxAbsDirectionPnl) * 50;
@@ -175,6 +262,126 @@ export default async function AnalyticsPage() {
               })}
             </div>
           </div>
+
+          {sessions.length > 0 && (
+            <div>
+              <div className="mb-4 flex items-baseline justify-between">
+                <h2 className="text-sm text-muted-foreground">By session</h2>
+                {sessionTotal > 0 && sessionWithLabel < sessionTotal && (
+                  <span className="text-xs text-muted-foreground">
+                    {sessionWithLabel} of {sessionTotal} trades have a session logged
+                  </span>
+                )}
+              </div>
+              <div className="space-y-5">
+                {sessions.map((s, i) => {
+                  const widthPct = (Math.abs(s.pnl) / maxAbsSessionPnl) * 50;
+                  const positive = s.pnl >= 0;
+                  const lowSample = s.count > 0 && s.count < LOW_SAMPLE_THRESHOLD;
+                  return (
+                    <div key={s.session}>
+                      <div className="mb-1 flex items-baseline justify-between text-sm">
+                        <span>{s.session}</span>
+                        <span className="font-mono text-muted-foreground">
+                          {s.count} trades · {s.winRate.toFixed(0)}% win rate
+                          {lowSample && (
+                            <span className="ml-1.5 text-loss/80" title="Small sample -- win rate isn't statistically meaningful yet">
+                              (low sample)
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="relative h-2.5 bg-surface">
+                        <div className="absolute inset-y-0 left-1/2 w-px bg-border" />
+                        <div
+                          className={`animate-grow-x absolute inset-y-0 rounded-sm ${
+                            positive
+                              ? "left-1/2 origin-left bar-fill-profit-h"
+                              : "right-1/2 origin-right bar-fill-loss-h"
+                          }`}
+                          style={{
+                            width: `${widthPct}%`,
+                            animationDelay: `${i * 100}ms`,
+                            boxShadow: barGlow(positive, widthPct / 50),
+                          }}
+                        />
+                      </div>
+                      <p
+                        className={`mt-1 text-right font-mono text-sm ${
+                          positive ? "text-profit" : "text-loss"
+                        }`}
+                      >
+                        {money(s.pnl)}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {(postOutcome.afterWin.count > 0 || postOutcome.afterLoss.count > 0) && (
+            <div>
+              <h2 className="mb-4 text-sm text-muted-foreground">After a win vs. after a loss</h2>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="rounded-sm border border-border bg-surface px-3 py-2">
+                  <p className="text-xs text-muted-foreground">
+                    Following a win ({postOutcome.afterWin.count} trades)
+                  </p>
+                  <p className="font-mono text-base">{postOutcome.afterWin.winRate.toFixed(0)}% win rate</p>
+                  {postOutcome.afterWin.avgRisk !== null && (
+                    <p className="text-xs text-muted-foreground">
+                      ${postOutcome.afterWin.avgRisk.toFixed(2)} avg risk
+                    </p>
+                  )}
+                </div>
+                <div className="rounded-sm border border-border bg-surface px-3 py-2">
+                  <p className="text-xs text-muted-foreground">
+                    Following a loss ({postOutcome.afterLoss.count} trades)
+                  </p>
+                  <p className="font-mono text-base">
+                    {postOutcome.afterLoss.winRate.toFixed(0)}% win rate
+                  </p>
+                  {postOutcome.afterLoss.avgRisk !== null && (
+                    <p className="text-xs text-muted-foreground">
+                      ${postOutcome.afterLoss.avgRisk.toFixed(2)} avg risk
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {rDistribution.length > 1 && (
+            <div>
+              <h2 className="mb-4 text-sm text-muted-foreground">R-multiple distribution</h2>
+              <div className="flex h-24 items-end gap-1.5">
+                {rDistribution.map((b, i) => {
+                  const positive = b.rangeStart + b.rangeEnd >= 0;
+                  const intensity = b.count / maxRBucketCount;
+                  const heightPct = intensity * 100;
+                  return (
+                    <div
+                      key={i}
+                      className={`animate-grow-y flex-1 origin-bottom rounded-t-sm ${
+                        positive ? "bar-fill-profit" : "bar-fill-loss"
+                      }`}
+                      style={{
+                        height: b.count > 0 ? `${Math.max(heightPct, 6)}%` : "2px",
+                        animationDelay: `${i * 40}ms`,
+                        boxShadow: b.count > 0 ? barGlow(positive, intensity) : undefined,
+                      }}
+                      title={`${b.rangeStart.toFixed(2)}R to ${b.rangeEnd.toFixed(2)}R: ${b.count} trade${b.count === 1 ? "" : "s"}`}
+                    />
+                  );
+                })}
+              </div>
+              <div className="mt-1 flex justify-between text-xs text-muted-foreground">
+                <span>{rDistribution[0].rangeStart.toFixed(2)}R</span>
+                <span>{rDistribution[rDistribution.length - 1].rangeEnd.toFixed(2)}R</span>
+              </div>
+            </div>
+          )}
 
           {distribution.length > 1 && (
             <div>

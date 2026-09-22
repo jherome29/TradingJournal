@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { fetchAllTrades } from "@/lib/fetch-trades";
-import { computeOverallStats, computeEquityCurve } from "@/lib/trade-stats";
+import { computeOverallStats, computeEquityCurve, computeAverageR } from "@/lib/trade-stats";
 import { DirectionBadge } from "../direction-badge";
 import { EquityChart } from "./equity-chart";
 import { CountUp } from "../count-up";
@@ -17,7 +17,9 @@ export default async function DashboardPage() {
   const trades = await fetchAllTrades();
   const stats = computeOverallStats(trades);
   const equity = computeEquityCurve(trades);
+  const averageR = computeAverageR(trades);
   const recent = [...trades].reverse().slice(0, 6);
+  const openTradeCount = trades.filter((t) => t.pnl === null).length;
 
   const pnlPositive = stats.totalPnl >= 0;
   const StreakIcon =
@@ -40,7 +42,15 @@ export default async function DashboardPage() {
             {pnlPositive ? "+" : "−"}$<CountUp value={Math.abs(stats.totalPnl)} />
           </p>
           <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
-            {stats.totalTrades} trades · {stats.winRate.toFixed(1)}% win rate ·
+            {stats.totalTrades} trades · {stats.winRate.toFixed(1)}% win rate
+            {averageR !== null && (
+              <>
+                {" "}
+                · {averageR >= 0 ? "+" : ""}
+                {averageR.toFixed(2)}R avg
+              </>
+            )}{" "}
+            ·
             <StreakIcon
               className={`h-3.5 w-3.5 ${
                 stats.currentStreak.type === "win"
@@ -65,7 +75,14 @@ export default async function DashboardPage() {
 
       <div className="mt-10">
         <div className="mb-3 flex items-baseline justify-between">
-          <h2 className="text-sm text-muted-foreground">Recent trades</h2>
+          <h2 className="flex items-center gap-2 text-sm text-muted-foreground">
+            Recent trades
+            {openTradeCount > 0 && (
+              <span className="rounded-sm border border-accent px-1.5 py-0.5 text-xs leading-none text-accent">
+                {openTradeCount} open
+              </span>
+            )}
+          </h2>
           <Link href="/trades" className="text-sm text-accent hover:underline">
             View all
           </Link>

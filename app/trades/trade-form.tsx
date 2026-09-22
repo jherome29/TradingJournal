@@ -1,6 +1,7 @@
 import type { Trade } from "@/lib/types";
 import { TradeDateField } from "./date-field";
 import { DirectionSelect } from "./direction-select";
+import { SessionSelect } from "./session-select";
 import { SubmitButton } from "./submit-button";
 import { RiskPnlFields } from "./risk-pnl-fields";
 import { DeleteScreenshotButton } from "./delete-screenshot-button";
@@ -90,14 +91,7 @@ export function TradeForm({
           <label htmlFor="session" className={labelClass}>
             Session
           </label>
-          <input
-            id="session"
-            name="session"
-            type="text"
-            placeholder="e.g. New York, London, Asian"
-            defaultValue={trade?.session ?? undefined}
-            className={fieldClass}
-          />
+          <SessionSelect name="session" defaultValue={trade?.session} />
         </div>
       </div>
 
