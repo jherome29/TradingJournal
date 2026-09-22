@@ -14,6 +14,7 @@ import {
   computeRiskConsistency,
   computeRMultipleDistribution,
   computePostOutcomeStats,
+  computeBestWorstByR,
 } from "./trade-stats";
 import type { Trade } from "./types";
 
@@ -158,6 +159,17 @@ describe("computeMaxDrawdown", () => {
     expect(result.amount).toBe(90);
     expect(result.peakDate).toBe("2026-01-02");
     expect(result.troughDate).toBe("2026-01-05");
+    expect(result.recoveryDate).toBe("2026-01-06");
+  });
+
+  it("returns a null recoveryDate when equity never returns to the pre-drawdown peak", () => {
+    // Running equity: 100, 150, 60 -- drawdown never recovered
+    const trades = [
+      trade({ traded_on: "2026-01-01", pnl: 100 }),
+      trade({ traded_on: "2026-01-02", pnl: 50 }),
+      trade({ traded_on: "2026-01-03", pnl: -90 }),
+    ];
+    expect(computeMaxDrawdown(trades).recoveryDate).toBeNull();
   });
 
   it("returns zero drawdown for a strictly rising equity curve", () => {
@@ -258,6 +270,30 @@ describe("computeRiskConsistency", () => {
 
   it("returns nulls for no trades", () => {
     expect(computeRiskConsistency([])).toEqual({ avgRisk: null, stddevRisk: null, count: 0 });
+  });
+});
+
+describe("computeBestWorstByR", () => {
+  it("finds the trade with the highest and lowest r_multiple", () => {
+    const trades = [
+      trade({ pnl: 50, r_multiple: 1 }),
+      trade({ pnl: 20, r_multiple: 3 }), // best by R despite smaller $ pnl
+      trade({ pnl: -10, r_multiple: -0.5 }),
+    ];
+    const result = computeBestWorstByR(trades);
+    expect(result.best?.r_multiple).toBe(3);
+    expect(result.worst?.r_multiple).toBe(-0.5);
+  });
+
+  it("ignores trades with no r_multiple", () => {
+    const trades = [trade({ r_multiple: null }), trade({ r_multiple: 2 })];
+    const result = computeBestWorstByR(trades);
+    expect(result.best?.r_multiple).toBe(2);
+    expect(result.worst?.r_multiple).toBe(2);
+  });
+
+  it("returns nulls for no trades with an r_multiple", () => {
+    expect(computeBestWorstByR([])).toEqual({ best: null, worst: null });
   });
 });
 

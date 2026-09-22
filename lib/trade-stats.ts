@@ -138,18 +138,24 @@ export interface DrawdownResult {
   amount: number; // positive magnitude of the largest peak-to-trough decline
   peakDate: string | null;
   troughDate: string | null;
+  recoveryDate: string | null; // first point equity returns to the pre-drawdown peak; null if not yet recovered
 }
 
-/** Largest decline from a running equity peak to a subsequent low. */
+/** Largest decline from a running equity peak to a subsequent low, plus when
+    (if ever) equity climbed back to that peak -- "how deep" and "how long to
+    dig out" are different questions, so both are tracked separately. */
 export function computeMaxDrawdown(trades: Trade[]): DrawdownResult {
   const equity = computeEquityCurve(trades);
-  if (equity.length === 0) return { amount: 0, peakDate: null, troughDate: null };
+  if (equity.length === 0) {
+    return { amount: 0, peakDate: null, troughDate: null, recoveryDate: null };
+  }
 
   let peak = equity[0].cumulativePnl;
   let peakDate = equity[0].traded_on;
   let maxDrawdown = 0;
   let maxPeakDate: string | null = null;
   let maxTroughDate: string | null = null;
+  let maxPeakValue = 0;
 
   for (const point of equity) {
     if (point.cumulativePnl > peak) {
@@ -161,10 +167,23 @@ export function computeMaxDrawdown(trades: Trade[]): DrawdownResult {
       maxDrawdown = drawdown;
       maxPeakDate = peakDate;
       maxTroughDate = point.traded_on;
+      maxPeakValue = peak;
     }
   }
 
-  return { amount: round2(maxDrawdown), peakDate: maxPeakDate, troughDate: maxTroughDate };
+  let recoveryDate: string | null = null;
+  if (maxTroughDate !== null) {
+    const troughIndex = equity.findIndex((p) => p.traded_on === maxTroughDate);
+    const recovered = equity.slice(troughIndex + 1).find((p) => p.cumulativePnl >= maxPeakValue);
+    recoveryDate = recovered?.traded_on ?? null;
+  }
+
+  return {
+    amount: round2(maxDrawdown),
+    peakDate: maxPeakDate,
+    troughDate: maxTroughDate,
+    recoveryDate,
+  };
 }
 
 const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -269,6 +288,28 @@ export function computeRiskConsistency(trades: Trade[]): RiskConsistency {
     stddevRisk: stddev === null ? null : round2(stddev),
     count: values.length,
   };
+}
+
+export interface BestWorstByR {
+  best: Trade | null;
+  worst: Trade | null;
+}
+
+/** Best/worst trade ranked by r_multiple rather than dollar pnl -- a trade
+    can be the worst $ loss without being the worst decision by R, since
+    risk size varies trade to trade (see computeRiskConsistency). */
+export function computeBestWorstByR(trades: Trade[]): BestWorstByR {
+  const withR = trades.filter((t) => t.r_multiple !== null);
+  if (withR.length === 0) return { best: null, worst: null };
+
+  const best = withR.reduce((b, t) =>
+    (t.r_multiple as number) > (b.r_multiple as number) ? t : b
+  );
+  const worst = withR.reduce((w, t) =>
+    (t.r_multiple as number) < (w.r_multiple as number) ? t : w
+  );
+
+  return { best, worst };
 }
 
 /** Average r_multiple across trades that have one; null if none do. */
