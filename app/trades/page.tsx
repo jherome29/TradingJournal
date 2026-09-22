@@ -2,9 +2,17 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getSignedScreenshotUrls } from "@/lib/screenshot-url";
 import { parseDateRange, filterTradesByRange } from "@/lib/date-range";
+import type { Trade } from "@/lib/types";
 import { DeleteTradeButton } from "./delete-trade-button";
 import { DirectionBadge } from "../direction-badge";
 import { RangeFilter } from "../range-filter";
+
+interface TradeCoverScreenshot {
+  storage_path: string;
+  position: number;
+}
+
+type TradeWithCoverScreenshots = Trade & { trade_screenshots: TradeCoverScreenshot[] | null };
 
 export default async function TradesPage({
   searchParams,
@@ -15,20 +23,17 @@ export default async function TradesPage({
   const supabase = await createClient();
   const { data: allTrades, error } = await supabase
     .from("trades")
-    .select("*")
+    .select("*, trade_screenshots(storage_path, position)")
     .order("traded_on", { ascending: false });
 
-  const trades = filterTradesByRange(allTrades ?? [], range);
-  const tradeIds = trades.map((t) => t.id);
-  const { data: coverShots } = tradeIds.length
-    ? await supabase
-        .from("trade_screenshots")
-        .select("trade_id, storage_path")
-        .in("trade_id", tradeIds)
-        .eq("position", 0)
-    : { data: [] };
+  const trades = filterTradesByRange(allTrades ?? [], range) as TradeWithCoverScreenshots[];
   const coverPathByTradeId = new Map(
-    (coverShots ?? []).map((s) => [s.trade_id, s.storage_path])
+    trades
+      .map((t) => {
+        const cover = t.trade_screenshots?.find((s) => s.position === 0);
+        return cover ? ([t.id, cover.storage_path] as const) : null;
+      })
+      .filter((entry): entry is readonly [string, string] => entry !== null)
   );
   const signedUrls = await getSignedScreenshotUrls(
     supabase,
