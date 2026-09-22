@@ -9,6 +9,7 @@ import {
   computeDayOfWeekBreakdown,
   computePnlDistribution,
   computeSessionBreakdown,
+  computeDirectionCoverage,
 } from "@/lib/trade-stats";
 import { CountUp } from "../count-up";
 import { RangeFilter } from "../range-filter";
@@ -39,8 +40,13 @@ export default async function AnalyticsPage({
 
   const expectancy = computeExpectancy(trades);
   const drawdown = computeMaxDrawdown(trades);
-  const dayOfWeek = computeDayOfWeekBreakdown(trades);
+  // XAUUSD doesn't trade weekends -- Sat/Sun are always empty, so they're
+  // dropped rather than shown as permanently-dead bars.
+  const dayOfWeek = computeDayOfWeekBreakdown(trades).filter(
+    (d) => d.day !== "Sat" && d.day !== "Sun"
+  );
   const maxAbsDayPnl = Math.max(1, ...dayOfWeek.map((d) => Math.abs(d.pnl)));
+  const directionCoverage = computeDirectionCoverage(trades);
   const sessions = computeSessionBreakdown(trades);
   const maxAbsSessionPnl = Math.max(1, ...sessions.map((s) => Math.abs(s.pnl)));
   const distribution = computePnlDistribution(trades);
@@ -97,7 +103,16 @@ export default async function AnalyticsPage({
           )}
 
           <div>
-            <h2 className="mb-4 text-sm text-muted-foreground">Long vs. short</h2>
+            <div className="mb-4 flex items-baseline justify-between">
+              <h2 className="text-sm text-muted-foreground">Long vs. short</h2>
+              {directionCoverage.total > 0 &&
+                directionCoverage.withDirection < directionCoverage.total && (
+                  <span className="text-xs text-muted-foreground">
+                    {directionCoverage.withDirection} of {directionCoverage.total} trades have a
+                    direction logged
+                  </span>
+                )}
+            </div>
             <div className="space-y-5">
               {directions.map((d, i) => {
                 const widthPct = (Math.abs(d.pnl) / maxAbsDirectionPnl) * 50;

@@ -110,6 +110,21 @@ export function computeDirectionBreakdown(trades: Trade[]): DirectionBreakdown[]
   });
 }
 
+export interface DirectionCoverage {
+  withDirection: number;
+  total: number;
+}
+
+/** How many closed trades actually have a direction logged, vs the total --
+    lets the UI caveat a long/short breakdown that only covers part of the data. */
+export function computeDirectionCoverage(trades: Trade[]): DirectionCoverage {
+  const closed = closedTrades(trades);
+  return {
+    withDirection: closed.filter((t) => t.direction !== null).length,
+    total: closed.length,
+  };
+}
+
 /** Expected dollar value per trade, given the win rate and average win/loss size. */
 export function computeExpectancy(trades: Trade[]): number {
   const stats = computeOverallStats(trades);
