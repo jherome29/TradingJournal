@@ -215,6 +215,49 @@ export function computePnlDistribution(trades: Trade[], bucketCount = 8): PnlBuc
   return buckets;
 }
 
+/** Average r_multiple across trades that have one; null if none do. */
+export function computeAverageR(trades: Trade[]): number | null {
+  const values = trades
+    .map((t) => t.r_multiple)
+    .filter((r): r is number => r !== null);
+  if (values.length === 0) return null;
+  return round2(values.reduce((sum, r) => sum + r, 0) / values.length);
+}
+
+export interface SessionBreakdown {
+  session: string;
+  count: number;
+  winRate: number;
+  pnl: number;
+}
+
+/** Groups closed trades by exact session string (case-sensitive); null session
+    becomes "Unspecified". Session is freeform text, not an enum, so this does
+    not merge differently-spelled/cased labels that mean the same session. */
+export function computeSessionBreakdown(trades: Trade[]): SessionBreakdown[] {
+  const buckets = new Map<string, { count: number; wins: number; pnl: number }>();
+
+  for (const t of closedTrades(trades)) {
+    const label = t.session ?? "Unspecified";
+    const bucket = buckets.get(label) ?? { count: 0, wins: 0, pnl: 0 };
+    bucket.count++;
+    bucket.pnl += t.pnl as number;
+    if ((t.pnl as number) > 0) bucket.wins++;
+    buckets.set(label, bucket);
+  }
+
+  return Array.from(buckets.entries())
+    .map(([session, b]) => ({
+      session,
+      count: b.count,
+      winRate: b.count ? round2((b.wins / b.count) * 100) : 0,
+      pnl: round2(b.pnl),
+    }))
+    .sort((a, b) =>
+      a.session === "Unspecified" ? 1 : b.session === "Unspecified" ? -1 : b.count - a.count
+    );
+}
+
 export interface DailyPnl {
   date: string; // YYYY-MM-DD
   pnl: number;

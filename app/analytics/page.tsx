@@ -7,6 +7,7 @@ import {
   computeMaxDrawdown,
   computeDayOfWeekBreakdown,
   computePnlDistribution,
+  computeSessionBreakdown,
 } from "@/lib/trade-stats";
 import { CountUp } from "../count-up";
 
@@ -33,6 +34,8 @@ export default async function AnalyticsPage() {
   const drawdown = computeMaxDrawdown(trades);
   const dayOfWeek = computeDayOfWeekBreakdown(trades);
   const maxAbsDayPnl = Math.max(1, ...dayOfWeek.map((d) => Math.abs(d.pnl)));
+  const sessions = computeSessionBreakdown(trades);
+  const maxAbsSessionPnl = Math.max(1, ...sessions.map((s) => Math.abs(s.pnl)));
   const distribution = computePnlDistribution(trades);
   const maxBucketCount = Math.max(1, ...distribution.map((b) => b.count));
 
@@ -175,6 +178,50 @@ export default async function AnalyticsPage() {
               })}
             </div>
           </div>
+
+          {sessions.length > 0 && (
+            <div>
+              <h2 className="mb-4 text-sm text-muted-foreground">By session</h2>
+              <div className="space-y-5">
+                {sessions.map((s, i) => {
+                  const widthPct = (Math.abs(s.pnl) / maxAbsSessionPnl) * 50;
+                  const positive = s.pnl >= 0;
+                  return (
+                    <div key={s.session}>
+                      <div className="mb-1 flex items-baseline justify-between text-sm">
+                        <span>{s.session}</span>
+                        <span className="font-mono text-muted-foreground">
+                          {s.count} trades · {s.winRate.toFixed(0)}% win rate
+                        </span>
+                      </div>
+                      <div className="relative h-2.5 bg-surface">
+                        <div className="absolute inset-y-0 left-1/2 w-px bg-border" />
+                        <div
+                          className={`animate-grow-x absolute inset-y-0 rounded-sm ${
+                            positive
+                              ? "left-1/2 origin-left bar-fill-profit-h"
+                              : "right-1/2 origin-right bar-fill-loss-h"
+                          }`}
+                          style={{
+                            width: `${widthPct}%`,
+                            animationDelay: `${i * 100}ms`,
+                            boxShadow: barGlow(positive, widthPct / 50),
+                          }}
+                        />
+                      </div>
+                      <p
+                        className={`mt-1 text-right font-mono text-sm ${
+                          positive ? "text-profit" : "text-loss"
+                        }`}
+                      >
+                        {money(s.pnl)}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {distribution.length > 1 && (
             <div>
