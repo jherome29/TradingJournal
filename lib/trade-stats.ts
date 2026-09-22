@@ -203,9 +203,8 @@ export interface PnlBucket {
   count: number;
 }
 
-/** Fixed-count histogram of closed-trade P/L, evenly spanning the observed range. */
-export function computePnlDistribution(trades: Trade[], bucketCount = 8): PnlBucket[] {
-  const values = closedTrades(trades).map((t) => t.pnl as number);
+/** Fixed-count histogram evenly spanning the observed range of `values`. */
+function bucketValues(values: number[], bucketCount: number): PnlBucket[] {
   if (values.length === 0) return [];
 
   const min = Math.min(...values);
@@ -228,6 +227,48 @@ export function computePnlDistribution(trades: Trade[], bucketCount = 8): PnlBuc
   }
 
   return buckets;
+}
+
+/** Fixed-count histogram of closed-trade P/L, evenly spanning the observed range. */
+export function computePnlDistribution(trades: Trade[], bucketCount = 8): PnlBucket[] {
+  const values = closedTrades(trades).map((t) => t.pnl as number);
+  return bucketValues(values, bucketCount);
+}
+
+/** Fixed-count histogram of r_multiple, evenly spanning the observed range.
+    Unlike dollar P/L, this isn't skewed by risk size changing trade to trade,
+    so it's a more honest view of edge quality than computePnlDistribution. */
+export function computeRMultipleDistribution(trades: Trade[], bucketCount = 8): PnlBucket[] {
+  const values = trades.map((t) => t.r_multiple).filter((r): r is number => r !== null);
+  return bucketValues(values, bucketCount);
+}
+
+export interface RiskConsistency {
+  avgRisk: number | null;
+  stddevRisk: number | null; // sample stddev; null with fewer than 2 values
+  count: number;
+}
+
+/** How consistent position sizing is across trades that have a risk logged.
+    A high stddev relative to the average means risk isn't being sized
+    consistently, which undermines any $-based stat computed on top of it. */
+export function computeRiskConsistency(trades: Trade[]): RiskConsistency {
+  const values = trades.map((t) => t.risk).filter((r): r is number => r !== null);
+  if (values.length === 0) return { avgRisk: null, stddevRisk: null, count: 0 };
+
+  const avg = values.reduce((sum, r) => sum + r, 0) / values.length;
+  const stddev =
+    values.length < 2
+      ? null
+      : Math.sqrt(
+          values.reduce((sum, r) => sum + (r - avg) ** 2, 0) / (values.length - 1)
+        );
+
+  return {
+    avgRisk: round2(avg),
+    stddevRisk: stddev === null ? null : round2(stddev),
+    count: values.length,
+  };
 }
 
 /** Average r_multiple across trades that have one; null if none do. */
@@ -292,4 +333,49 @@ export function computeDailyPnl(trades: Trade[]): DailyPnl[] {
     }
   }
   return Array.from(byDate.values()).sort((a, b) => (a.date < b.date ? -1 : 1));
+}
+
+export interface PostOutcomeBreakdown {
+  count: number;
+  winRate: number;
+  avgRisk: number | null;
+}
+
+export interface PostOutcomeStats {
+  afterWin: PostOutcomeBreakdown;
+  afterLoss: PostOutcomeBreakdown;
+}
+
+function summarizePostOutcomeGroup(group: Trade[]): PostOutcomeBreakdown {
+  const wins = group.filter((t) => (t.pnl as number) > 0);
+  const risks = group.map((t) => t.risk).filter((r): r is number => r !== null);
+  return {
+    count: group.length,
+    winRate: group.length ? round2((wins.length / group.length) * 100) : 0,
+    avgRisk: risks.length ? round2(risks.reduce((sum, r) => sum + r, 0) / risks.length) : null,
+  };
+}
+
+/** Splits closed trades into "followed a win" vs "followed a loss" (or
+    breakeven), by chronological order of traded_on. A gap here -- e.g. worse
+    win rate or bigger avg risk after a loss -- is a real tilt/revenge-sizing
+    signal, unlike a plain win/loss streak count which only describes what
+    happened without indicating whether it's affecting behavior. */
+export function computePostOutcomeStats(trades: Trade[]): PostOutcomeStats {
+  const chronological = [...closedTrades(trades)].sort((a, b) =>
+    a.traded_on < b.traded_on ? -1 : a.traded_on > b.traded_on ? 1 : 0
+  );
+
+  const afterWinGroup: Trade[] = [];
+  const afterLossGroup: Trade[] = [];
+
+  for (let i = 1; i < chronological.length; i++) {
+    const prevWasWin = (chronological[i - 1].pnl as number) > 0;
+    (prevWasWin ? afterWinGroup : afterLossGroup).push(chronological[i]);
+  }
+
+  return {
+    afterWin: summarizePostOutcomeGroup(afterWinGroup),
+    afterLoss: summarizePostOutcomeGroup(afterLossGroup),
+  };
 }

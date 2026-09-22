@@ -11,6 +11,9 @@ import {
   computeAverageR,
   computeSessionBreakdown,
   computeDirectionCoverage,
+  computeRiskConsistency,
+  computeRMultipleDistribution,
+  computePostOutcomeStats,
 } from "./trade-stats";
 import type { Trade } from "./types";
 
@@ -231,6 +234,33 @@ describe("computeDirectionCoverage", () => {
   });
 });
 
+describe("computeRiskConsistency", () => {
+  it("computes average and sample stddev of risk across trades that have one", () => {
+    // risk values 30, 50, 70 -> mean 50, sample stddev sqrt(((400+0+400)/2)) = 20
+    const trades = [trade({ risk: 30 }), trade({ risk: 50 }), trade({ risk: 70 })];
+    const result = computeRiskConsistency(trades);
+    expect(result).toEqual({ avgRisk: 50, stddevRisk: 20, count: 3 });
+  });
+
+  it("ignores trades with no risk logged", () => {
+    const trades = [trade({ risk: 40 }), trade({ risk: null })];
+    const result = computeRiskConsistency(trades);
+    expect(result).toEqual({ avgRisk: 40, stddevRisk: null, count: 1 });
+  });
+
+  it("returns null stddev with fewer than two risk values", () => {
+    expect(computeRiskConsistency([trade({ risk: 40 })])).toEqual({
+      avgRisk: 40,
+      stddevRisk: null,
+      count: 1,
+    });
+  });
+
+  it("returns nulls for no trades", () => {
+    expect(computeRiskConsistency([])).toEqual({ avgRisk: null, stddevRisk: null, count: 0 });
+  });
+});
+
 describe("computeAverageR", () => {
   it("averages r_multiple across trades that have one", () => {
     const trades = [
@@ -289,5 +319,59 @@ describe("computeSessionBreakdown", () => {
 
   it("returns an empty array for no trades", () => {
     expect(computeSessionBreakdown([])).toEqual([]);
+  });
+});
+
+describe("computeRMultipleDistribution", () => {
+  it("buckets closed trades' r_multiple evenly across the observed range", () => {
+    const trades = [
+      trade({ r_multiple: -1 }),
+      trade({ r_multiple: 0 }),
+      trade({ r_multiple: 1 }),
+    ];
+    const buckets = computeRMultipleDistribution(trades, 2);
+    expect(buckets).toHaveLength(2);
+    expect(buckets[0].count + buckets[1].count).toBe(3);
+    expect(buckets[0].rangeStart).toBe(-1);
+    expect(buckets[1].rangeEnd).toBe(1);
+  });
+
+  it("ignores trades with no r_multiple", () => {
+    const trades = [trade({ r_multiple: 1 }), trade({ r_multiple: null })];
+    const buckets = computeRMultipleDistribution(trades, 1);
+    expect(buckets).toEqual([{ rangeStart: 1, rangeEnd: 1, count: 1 }]);
+  });
+
+  it("returns an empty array with no r_multiple values", () => {
+    expect(computeRMultipleDistribution([])).toEqual([]);
+  });
+});
+
+describe("computePostOutcomeStats", () => {
+  it("splits win rate and avg risk by whether the prior trade was a win or a loss", () => {
+    // chronological: win(risk 50) -> win(risk 60) -> loss(risk 40) -> win(risk 30)
+    // after-win group: trades 2,3 (risk 60 win, risk 40 loss) -> winRate 50%, avgRisk 50
+    // after-loss group: trade 4 (risk 30 win) -> winRate 100%, avgRisk 30
+    const trades = [
+      trade({ traded_on: "2026-01-01", pnl: 100, risk: 50 }),
+      trade({ traded_on: "2026-01-02", pnl: 50, risk: 60 }),
+      trade({ traded_on: "2026-01-03", pnl: -40, risk: 40 }),
+      trade({ traded_on: "2026-01-04", pnl: 30, risk: 30 }),
+    ];
+    const result = computePostOutcomeStats(trades);
+    expect(result.afterWin).toEqual({ count: 2, winRate: 50, avgRisk: 50 });
+    expect(result.afterLoss).toEqual({ count: 1, winRate: 100, avgRisk: 30 });
+  });
+
+  it("returns zeroed groups with fewer than two closed trades", () => {
+    const result = computePostOutcomeStats([trade({ pnl: 100 })]);
+    expect(result.afterWin).toEqual({ count: 0, winRate: 0, avgRisk: null });
+    expect(result.afterLoss).toEqual({ count: 0, winRate: 0, avgRisk: null });
+  });
+
+  it("returns zeroed groups for no trades", () => {
+    const result = computePostOutcomeStats([]);
+    expect(result.afterWin.count).toBe(0);
+    expect(result.afterLoss.count).toBe(0);
   });
 });
