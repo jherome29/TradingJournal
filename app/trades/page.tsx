@@ -4,23 +4,26 @@ import { getSignedScreenshotUrls } from "@/lib/screenshot-url";
 import { DeleteTradeButton } from "./delete-trade-button";
 import { DirectionBadge } from "../direction-badge";
 
+interface TradeCoverScreenshot {
+  storage_path: string;
+  position: number;
+}
+
 export default async function TradesPage() {
   const supabase = await createClient();
   const { data: trades, error } = await supabase
     .from("trades")
-    .select("*")
+    .select("*, trade_screenshots(storage_path, position)")
     .order("traded_on", { ascending: false });
 
-  const tradeIds = (trades ?? []).map((t) => t.id);
-  const { data: coverShots } = tradeIds.length
-    ? await supabase
-        .from("trade_screenshots")
-        .select("trade_id, storage_path")
-        .in("trade_id", tradeIds)
-        .eq("position", 0)
-    : { data: [] };
   const coverPathByTradeId = new Map(
-    (coverShots ?? []).map((s) => [s.trade_id, s.storage_path])
+    (trades ?? [])
+      .map((t) => {
+        const screenshots = t.trade_screenshots as TradeCoverScreenshot[] | null;
+        const cover = screenshots?.find((s) => s.position === 0);
+        return cover ? ([t.id, cover.storage_path] as const) : null;
+      })
+      .filter((entry): entry is readonly [string, string] => entry !== null)
   );
   const signedUrls = await getSignedScreenshotUrls(
     supabase,
