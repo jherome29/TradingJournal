@@ -8,8 +8,11 @@ import {
   computeMaxDrawdown,
   computeDayOfWeekBreakdown,
   computePnlDistribution,
+  computeRMultipleDistribution,
   computeSessionBreakdown,
   computeDirectionCoverage,
+  computeRiskConsistency,
+  computePostOutcomeStats,
 } from "@/lib/trade-stats";
 import { CountUp } from "../count-up";
 import { RangeFilter } from "../range-filter";
@@ -51,6 +54,10 @@ export default async function AnalyticsPage({
   const maxAbsSessionPnl = Math.max(1, ...sessions.map((s) => Math.abs(s.pnl)));
   const distribution = computePnlDistribution(trades);
   const maxBucketCount = Math.max(1, ...distribution.map((b) => b.count));
+  const rDistribution = computeRMultipleDistribution(trades);
+  const maxRBucketCount = Math.max(1, ...rDistribution.map((b) => b.count));
+  const riskConsistency = computeRiskConsistency(trades);
+  const postOutcome = computePostOutcomeStats(trades);
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
@@ -92,6 +99,16 @@ export default async function AnalyticsPage({
             {stats.worstTrade && (
               <Stat label="Worst trade" tone="loss" glow="loss" delay={480}>
                 −$<CountUp value={Math.abs(stats.worstTrade.pnl ?? 0)} delay={480} />
+              </Stat>
+            )}
+            {riskConsistency.avgRisk !== null && (
+              <Stat label="Avg risk" delay={560}>
+                $<CountUp value={riskConsistency.avgRisk} delay={560} />
+                {riskConsistency.stddevRisk !== null && (
+                  <span className="ml-1 text-xs text-muted-foreground">
+                    ± ${riskConsistency.stddevRisk.toFixed(2)}
+                  </span>
+                )}
               </Stat>
             )}
           </div>
@@ -247,6 +264,69 @@ export default async function AnalyticsPage({
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          )}
+
+          {(postOutcome.afterWin.count > 0 || postOutcome.afterLoss.count > 0) && (
+            <div>
+              <h2 className="mb-4 text-sm text-muted-foreground">After a win vs. after a loss</h2>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="rounded-sm border border-border bg-surface px-3 py-2">
+                  <p className="text-xs text-muted-foreground">
+                    Following a win ({postOutcome.afterWin.count} trades)
+                  </p>
+                  <p className="font-mono text-base">{postOutcome.afterWin.winRate.toFixed(0)}% win rate</p>
+                  {postOutcome.afterWin.avgRisk !== null && (
+                    <p className="text-xs text-muted-foreground">
+                      ${postOutcome.afterWin.avgRisk.toFixed(2)} avg risk
+                    </p>
+                  )}
+                </div>
+                <div className="rounded-sm border border-border bg-surface px-3 py-2">
+                  <p className="text-xs text-muted-foreground">
+                    Following a loss ({postOutcome.afterLoss.count} trades)
+                  </p>
+                  <p className="font-mono text-base">
+                    {postOutcome.afterLoss.winRate.toFixed(0)}% win rate
+                  </p>
+                  {postOutcome.afterLoss.avgRisk !== null && (
+                    <p className="text-xs text-muted-foreground">
+                      ${postOutcome.afterLoss.avgRisk.toFixed(2)} avg risk
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {rDistribution.length > 1 && (
+            <div>
+              <h2 className="mb-4 text-sm text-muted-foreground">R-multiple distribution</h2>
+              <div className="flex h-24 items-end gap-1.5">
+                {rDistribution.map((b, i) => {
+                  const positive = b.rangeStart + b.rangeEnd >= 0;
+                  const intensity = b.count / maxRBucketCount;
+                  const heightPct = intensity * 100;
+                  return (
+                    <div
+                      key={i}
+                      className={`animate-grow-y flex-1 origin-bottom rounded-t-sm ${
+                        positive ? "bar-fill-profit" : "bar-fill-loss"
+                      }`}
+                      style={{
+                        height: b.count > 0 ? `${Math.max(heightPct, 6)}%` : "2px",
+                        animationDelay: `${i * 40}ms`,
+                        boxShadow: b.count > 0 ? barGlow(positive, intensity) : undefined,
+                      }}
+                      title={`${b.rangeStart.toFixed(2)}R to ${b.rangeEnd.toFixed(2)}R: ${b.count} trade${b.count === 1 ? "" : "s"}`}
+                    />
+                  );
+                })}
+              </div>
+              <div className="mt-1 flex justify-between text-xs text-muted-foreground">
+                <span>{rDistribution[0].rangeStart.toFixed(2)}R</span>
+                <span>{rDistribution[rDistribution.length - 1].rangeEnd.toFixed(2)}R</span>
               </div>
             </div>
           )}
