@@ -8,6 +8,8 @@ import {
   computeMaxDrawdown,
   computeDayOfWeekBreakdown,
   computePnlDistribution,
+  computeAverageR,
+  computeSessionBreakdown,
 } from "./trade-stats";
 import type { Trade } from "./types";
 
@@ -205,5 +207,66 @@ describe("computePnlDistribution", () => {
 
   it("returns an empty array with no closed trades", () => {
     expect(computePnlDistribution([])).toEqual([]);
+  });
+});
+
+describe("computeAverageR", () => {
+  it("averages r_multiple across trades that have one", () => {
+    const trades = [
+      trade({ r_multiple: 2 }),
+      trade({ r_multiple: -1 }),
+      trade({ r_multiple: 3 }),
+    ];
+    expect(computeAverageR(trades)).toBe(1.33);
+  });
+
+  it("ignores trades with a null r_multiple", () => {
+    const trades = [trade({ r_multiple: 2 }), trade({ r_multiple: null })];
+    expect(computeAverageR(trades)).toBe(2);
+  });
+
+  it("returns null when no trade has an r_multiple", () => {
+    expect(computeAverageR([trade({ r_multiple: null })])).toBeNull();
+  });
+
+  it("returns null for an empty list", () => {
+    expect(computeAverageR([])).toBeNull();
+  });
+});
+
+describe("computeSessionBreakdown", () => {
+  it("groups closed trades by exact session string", () => {
+    const trades = [
+      trade({ session: "New York", pnl: 100 }),
+      trade({ session: "New York", pnl: -20 }),
+      trade({ session: "London", pnl: 50 }),
+    ];
+    const result = computeSessionBreakdown(trades);
+    const ny = result.find((r) => r.session === "New York")!;
+    const london = result.find((r) => r.session === "London")!;
+
+    expect(ny).toEqual({ session: "New York", count: 2, winRate: 50, pnl: 80 });
+    expect(london).toEqual({ session: "London", count: 1, winRate: 100, pnl: 50 });
+  });
+
+  it("groups trades with a null session under Unspecified", () => {
+    const trades = [trade({ session: null, pnl: 30 }), trade({ session: null, pnl: -10 })];
+    const result = computeSessionBreakdown(trades);
+    expect(result).toEqual([{ session: "Unspecified", count: 2, winRate: 50, pnl: 20 }]);
+  });
+
+  it("treats differently-cased or spelled session labels as distinct buckets", () => {
+    const trades = [trade({ session: "Asia", pnl: 10 }), trade({ session: "Asian", pnl: 10 })];
+    const result = computeSessionBreakdown(trades);
+    expect(result).toHaveLength(2);
+  });
+
+  it("excludes open trades (null pnl) the same way other breakdowns do", () => {
+    const trades = [trade({ session: "London", pnl: null, exit_price: null })];
+    expect(computeSessionBreakdown(trades)).toEqual([]);
+  });
+
+  it("returns an empty array for no trades", () => {
+    expect(computeSessionBreakdown([])).toEqual([]);
   });
 });
