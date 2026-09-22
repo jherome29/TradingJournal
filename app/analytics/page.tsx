@@ -1,5 +1,6 @@
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { fetchAllTrades } from "@/lib/fetch-trades";
+import { parseDateRange, filterTradesByRange } from "@/lib/date-range";
 import {
   computeOverallStats,
   computeDirectionBreakdown,
@@ -10,6 +11,7 @@ import {
   computeSessionBreakdown,
 } from "@/lib/trade-stats";
 import { CountUp } from "../count-up";
+import { RangeFilter } from "../range-filter";
 
 function money(n: number) {
   return `${n >= 0 ? "+" : "−"}$${Math.abs(n).toFixed(2)}`;
@@ -23,8 +25,13 @@ function barGlow(positive: boolean, intensity: number) {
   return `0 0 ${6 + intensity * 14}px -2px rgba(${color}, ${0.35 + intensity * 0.5})`;
 }
 
-export default async function AnalyticsPage() {
-  const trades = await fetchAllTrades();
+export default async function AnalyticsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ range?: string }>;
+}) {
+  const range = parseDateRange((await searchParams).range);
+  const trades = filterTradesByRange(await fetchAllTrades(), range);
   const stats = computeOverallStats(trades);
   const directions = computeDirectionBreakdown(trades);
   const maxAbsDirectionPnl = Math.max(1, ...directions.map((d) => Math.abs(d.pnl)));
@@ -41,11 +48,17 @@ export default async function AnalyticsPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="mb-8 text-2xl font-medium">Analytics</h1>
+      <h1 className="mb-6 text-2xl font-medium">Analytics</h1>
+
+      <div className="mb-8">
+        <RangeFilter basePath="/analytics" current={range} />
+      </div>
 
       {stats.totalTrades === 0 ? (
         <p className="text-sm text-muted-foreground">
-          Nothing to analyze yet — this fills in once you have closed trades.
+          {range === "all"
+            ? "Nothing to analyze yet — this fills in once you have closed trades."
+            : "No closed trades in this period."}
         </p>
       ) : (
         <div className="space-y-10">

@@ -1,17 +1,25 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getSignedScreenshotUrls } from "@/lib/screenshot-url";
+import { parseDateRange, filterTradesByRange } from "@/lib/date-range";
 import { DeleteTradeButton } from "./delete-trade-button";
 import { DirectionBadge } from "../direction-badge";
+import { RangeFilter } from "../range-filter";
 
-export default async function TradesPage() {
+export default async function TradesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ range?: string }>;
+}) {
+  const range = parseDateRange((await searchParams).range);
   const supabase = await createClient();
-  const { data: trades, error } = await supabase
+  const { data: allTrades, error } = await supabase
     .from("trades")
     .select("*")
     .order("traded_on", { ascending: false });
 
-  const tradeIds = (trades ?? []).map((t) => t.id);
+  const trades = filterTradesByRange(allTrades ?? [], range);
+  const tradeIds = trades.map((t) => t.id);
   const { data: coverShots } = tradeIds.length
     ? await supabase
         .from("trade_screenshots")
@@ -27,14 +35,14 @@ export default async function TradesPage() {
     Array.from(coverPathByTradeId.values())
   );
 
-  const closed = (trades ?? []).filter((t) => t.pnl !== null);
+  const closed = trades.filter((t) => t.pnl !== null);
   const bestId = closed.length
     ? closed.reduce((best, t) => ((t.pnl as number) > (best.pnl as number) ? t : best)).id
     : null;
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-medium">Trades</h1>
         <Link
           href="/trades/new"
@@ -44,16 +52,22 @@ export default async function TradesPage() {
         </Link>
       </div>
 
+      <div className="mb-8">
+        <RangeFilter basePath="/trades" current={range} />
+      </div>
+
       {error && <p className="text-sm text-loss">{error.message}</p>}
 
-      {!error && (trades?.length ?? 0) === 0 && (
+      {!error && trades.length === 0 && (
         <p className="text-sm text-muted-foreground">
-          Nothing logged yet — your first entry starts the ledger.
+          {range === "all"
+            ? "Nothing logged yet — your first entry starts the ledger."
+            : "No trades in this period."}
         </p>
       )}
 
       <div className="divide-y divide-border border-y border-border">
-        {trades?.map((trade, i) => {
+        {trades.map((trade, i) => {
           const isBest = trade.id === bestId;
           const coverPath = coverPathByTradeId.get(trade.id);
           const coverUrl = coverPath ? signedUrls.get(coverPath) : undefined;
