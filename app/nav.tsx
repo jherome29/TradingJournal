@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ScrollText, ChartSpline, CalendarDays, LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  ScrollText,
+  ChartSpline,
+  CalendarDays,
+  ShieldAlert,
+  LogOut,
+} from "lucide-react";
 import { signOut } from "./login/actions";
 
 const links = [
@@ -10,6 +17,7 @@ const links = [
   { href: "/trades", label: "Trades", icon: ScrollText },
   { href: "/analytics", label: "Analytics", icon: ChartSpline },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
+  { href: "/data-quality", label: "Data quality", icon: ShieldAlert },
 ];
 
 export function Nav() {
